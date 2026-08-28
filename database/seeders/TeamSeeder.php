@@ -19,7 +19,7 @@ class TeamSeeder extends Seeder
                 'first_name' => 'Wanjiku',
                 'last_name' => 'Mwangi',
                 'title' => 'Managing Director · Hydrogeologist',
-                'description' => 'Leads MajiWorks strategy and source investigation programmes across Kenya and the wider East Africa region.',
+                'description' => 'Leads JR Couple strategy across the family of brands.',
                 'founder' => true,
                 'order' => 1,
                 'photo' => $base.'/maji-team-amina.png',
