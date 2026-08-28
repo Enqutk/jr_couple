@@ -123,4 +123,21 @@ class TikTokBlogImportTest extends TestCase
         $this->assertSame(PostSourceEnum::social, $post->source);
         $this->assertSame(StatusEnum::active, $post->status);
     }
+
+    public function test_cover_downloader_saves_the_image(): void
+    {
+        Http::fake([
+            'https://cdn.example/cover.jpg' => Http::response('jpeg-bytes', 200, [
+                'Content-Type' => 'image/jpeg',
+            ]),
+        ]);
+
+        $path = app(\App\Services\TikTokCoverDownloader::class)
+            ->download('https://cdn.example/cover.jpg');
+
+        $this->assertNotNull($path);
+        $this->assertFileExists($path);
+        $this->assertSame('jpeg-bytes', file_get_contents($path));
+        unlink($path);
+    }
 }

@@ -13,7 +13,7 @@
 
 <article class="hz-blog-card">
     @if($mediaUrl)
-        <a href="{{ $href }}" class="hz-blog-card-media" @if($isSocial) rel="noopener" @endif>
+        <a href="{{ $href }}" class="hz-blog-card-media{{ $isSocial ? ' is-tiktok-cover' : '' }}" @if($isSocial) rel="noopener" @endif>
             @if($isVideo)
                 <video muted playsinline preload="metadata" src="{{ $mediaUrl }}"></video>
             @else

@@ -10,6 +10,7 @@ class ServiceMediaSeeder extends Seeder
     public function run(): void
     {
         $base = public_path('assets/images/jr/store');
+        $covers = public_path('assets/images/jr/covers');
 
         $bySlug = [
             'jr-ketema' => [
@@ -17,15 +18,15 @@ class ServiceMediaSeeder extends Seeder
                 'secondary' => $base.'/sports-pitch-turf.jpg',
             ],
             'jr-mobile' => [
-                'main' => $base.'/flagship-phone.jpg',
+                'main' => $covers.'/mobile-1.jpg',
                 'secondary' => $base.'/android-phone.jpg',
             ],
             'jr-real-estate' => [
-                'main' => $base.'/apartment-2br.jpg',
+                'main' => $covers.'/real-estate.jpg',
                 'secondary' => $base.'/investment-plot.jpg',
             ],
             'ruties-hair' => [
-                'main' => $base.'/wave-wig.jpg',
+                'main' => $covers.'/hair-avatar.jpg',
                 'secondary' => $base.'/hair-care-kit.jpg',
             ],
         ];

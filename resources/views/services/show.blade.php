@@ -6,9 +6,9 @@
 @php
     $jrImages = [
         'jr-ketema' => asset('assets/images/jr/store/home-lawn-turf.jpg'),
-        'jr-mobile' => asset('assets/images/jr/store/flagship-phone.jpg'),
-        'jr-real-estate' => asset('assets/images/jr/store/apartment-2br.jpg'),
-        'ruties-hair' => asset('assets/images/jr/store/wave-wig.jpg'),
+        'jr-mobile' => asset('assets/images/jr/covers/mobile-1.jpg'),
+        'jr-real-estate' => asset('assets/images/jr/covers/real-estate.jpg'),
+        'ruties-hair' => asset('assets/images/jr/covers/hair-avatar.jpg'),
     ];
 
     $jrSecondaryImages = [
@@ -25,11 +25,11 @@
         'ruties-hair' => '#be185d',
     ];
 
-    $heroImage = $service->secondary_image_url
-        ?: $service->main_image_url
+    $heroImage = $service->main_image_url
+        ?: $service->secondary_image_url
         ?: ($jrImages[$service->slug] ?? null);
 
-    $accentImage = $service->main_image_url
+    $accentImage = $service->secondary_image_url
         ?: ($jrSecondaryImages[$service->slug] ?? $heroImage);
 
     $accent = $brandAccents[$service->slug] ?? 'var(--hz-accent)';

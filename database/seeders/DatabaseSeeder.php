@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             HeroSeeder::class,
             TeamSeeder::class,
             EntitySeeder::class,
+            TikTokCoverSeeder::class,
             PortfolioMediaSeeder::class,
             ProductReviewSeeder::class,
             StatsSeeder::class,
