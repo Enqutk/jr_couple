@@ -66,6 +66,9 @@ class HomeContentService
             'tagline' => $tagline,
             'metaDescription' => $metaDescription,
             'theme' => $theme,
+            'payment' => $organization
+                ? $organization->resolvedPayment()
+                : Organization::defaultPayment(),
             'logoUrl' => $organization?->logo_url,
             'faviconUrl' => $organization?->favicon_url,
 
