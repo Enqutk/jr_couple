@@ -20,9 +20,9 @@ class ProductReviewResource extends Resource
 
     protected static ?string $model = ProductReview::class;
 
-    protected static ?string $navigationGroup = 'Website';
+    protected static ?string $navigationGroup = 'Store';
 
-    protected static ?int $navigationSort = 5;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Product reviews';
 

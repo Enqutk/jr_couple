@@ -17,8 +17,10 @@ class OrganizationResource extends Resource
 
     protected static string $permissionKey = 'organization';
     protected static ?string $model = Organization::class;
-    protected static ?string $navigationGroup = 'Setting';
-    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'Settings';
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationLabel = 'Organization & theme';
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     public static function form(Form $form): Form

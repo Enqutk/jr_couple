@@ -21,7 +21,7 @@ class ContentBlockResource extends Resource
 
     protected static string $permissionKey = 'page';
     protected static ?string $model = ContentBlock::class;
-    protected static ?string $navigationGroup = 'Content Management';
+    protected static ?string $navigationGroup = 'Content';
     protected static ?int $navigationSort = 3;
     protected static ?string $navigationLabel = 'Content Blocks';
     protected static ?string $navigationIcon = 'heroicon-o-squares-2x2';

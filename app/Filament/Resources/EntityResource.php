@@ -30,17 +30,17 @@ class EntityResource extends Resource
 
     protected static ?string $model = Entity::class;
 
-    protected static ?string $navigationGroup = 'Website';
+    protected static ?string $navigationGroup = 'Store';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationLabel = 'Portfolio & entities';
+    protected static ?string $navigationLabel = 'Store products';
 
-    protected static ?string $modelLabel = 'Entity';
+    protected static ?string $modelLabel = 'Store product';
 
-    protected static ?string $pluralModelLabel = 'Portfolio & entities';
+    protected static ?string $pluralModelLabel = 'Store products';
 
-    protected static ?string $navigationIcon = 'heroicon-o-briefcase';
+    protected static ?string $navigationIcon = 'heroicon-o-shopping-bag';
 
     public static function form(Form $form): Form
     {

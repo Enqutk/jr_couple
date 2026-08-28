@@ -19,7 +19,7 @@ class PageSectionResource extends Resource
 
     protected static string $permissionKey = 'page';
     protected static ?string $model = PageSection::class;
-    protected static ?string $navigationGroup = 'Content Management';
+    protected static ?string $navigationGroup = 'Content';
     protected static ?int $navigationSort = 2;
     protected static ?string $navigationLabel = 'Page Sections';
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
