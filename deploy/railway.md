@@ -1,4 +1,4 @@
-# Deploy MajiWorks on Railway
+# Deploy JR Couple on Railway
 
 Railway is a good fit for this Laravel + Filament + MySQL app (persistent process, real MySQL, volumes).
 
