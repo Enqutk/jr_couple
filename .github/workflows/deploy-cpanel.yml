@@ -8,11 +8,12 @@ name: Publish Website to CPanel
 #   FTP_USERNAME
 #   FTP_PASSWORD
 #   FTP_SERVER_DIR   — remote Laravel root. If the FTP account Directory is
-#                      already the site folder, set this to: ./
+#                      already the live web root, set this to: ./
 #   LIVE_SITE_URL    — public site origin, no trailing slash
-#                      e.g. https://yourdomain.com
+#                      e.g. https://jr.kimemcards.com
 #
-# Document root in cPanel must be the Laravel /public folder.
+# This host’s FTP home IS the document root (no public/ to cd into).
+# Laravel is uploaded there; the repo-root .htaccess forwards to public/index.php.
 
 on:
   push:
@@ -172,7 +173,13 @@ jobs:
             return 1
           }
 
-          # Most likely: FTP account Directory is already the Laravel root
+          # This account: FTP home already is the live document root (no public/ folder).
+          if try_put "FTP home (document root)" "./" ""; then
+            echo "::notice::Using server-dir=./ (FTP home is the live web root)"
+            exit 0
+          fi
+
+          # Kimem-style: FTP home is Laravel root, cPanel docroot is public/
           if try_put "FTP home public/" "./" "cd public;"; then
             echo "::notice::Using server-dir=./ (FTP account is already the Laravel root)"
             exit 0
@@ -184,25 +191,34 @@ jobs:
             *) SECRET_DIR="${FTP_SERVER_DIR}/" ;;
           esac
           if [ "$REMOTE_DIR" != "." ] && [ -n "$REMOTE_DIR" ]; then
-            if try_put "secret FTP_SERVER_DIR" "$SECRET_DIR" "cd ${REMOTE_DIR}; cd public;"; then
+            if try_put "secret FTP_SERVER_DIR (docroot)" "$SECRET_DIR" "cd ${REMOTE_DIR};"; then
+              exit 0
+            fi
+            if try_put "secret FTP_SERVER_DIR public/" "$SECRET_DIR" "cd ${REMOTE_DIR}; cd public;"; then
               exit 0
             fi
           fi
 
-          if try_put "/${LIVE_HOST}/" "/${LIVE_HOST}/" "cd /${LIVE_HOST}/public;"; then
+          if try_put "/${LIVE_HOST}/" "/${LIVE_HOST}/" "cd /${LIVE_HOST};"; then
             echo "::notice::Using server-dir=/${LIVE_HOST}/"
             exit 0
           fi
 
+          if try_put "/${LIVE_HOST}/public/" "/${LIVE_HOST}/" "cd /${LIVE_HOST}/public;"; then
+            echo "::notice::Using server-dir=/${LIVE_HOST}/ (docroot is public/)"
+            exit 0
+          fi
+
           echo "::error::FTP can upload, but none of the candidate folders are served by ${LIVE_ORIGIN}"
-          echo "::error::In File Manager open ${LIVE_HOST}/public and check for deploy-path-check.txt."
-          echo "::error::If FTP account Directory is already the Laravel root, set secret FTP_SERVER_DIR to: ./"
-          echo "::error::cPanel document root must be the Laravel public/ folder."
+          echo "::error::FTP home listing should match File Manager for the live site."
+          echo "::error::If FTP account Directory is already the live web root, set secret FTP_SERVER_DIR to: ./"
           exit 1
 
       - name: Write deploy stamp for live-domain check
         run: |
           echo "${{ github.sha }}" > public/deploy-sha.txt
+          # Also at repo root: this host’s document root is FTP home, not public/.
+          echo "${{ github.sha }}" > deploy-sha.txt
           echo "Stamp: $(cat public/deploy-sha.txt)"
 
       - name: FTP Deploy
@@ -286,9 +302,12 @@ jobs:
           echo "Expected stamp: $expected"
           echo "Live stamp:     $got"
           if [ "$got" != "$expected" ]; then
+            got=$(curl -sS "${LIVE_ORIGIN}/public/deploy-sha.txt" || true)
+            echo "Live stamp via /public/deploy-sha.txt: $got"
+          fi
+          if [ "$got" != "$expected" ]; then
             echo "::error::FTP uploaded somewhere that is NOT the live document root."
-            echo "::error::If FTP account Directory is already the Laravel root, set secret FTP_SERVER_DIR to: ./"
-            echo "::error::cPanel document root must be the Laravel public/ folder."
+            echo "::error::If FTP account Directory is already the live web root, set secret FTP_SERVER_DIR to: ./"
             exit 1
           fi
 
