@@ -1352,7 +1352,654 @@ h1, h2, h3, h4, .display-font {
     }
 }
 
-/* JR Store — neighbourhood shop vibe */
+/* JR Store — Baniyas-style marketplace */
+.hz-store-market {
+    background: #f9fafb;
+    padding-bottom: 3rem;
+}
+
+.hz-bny-crumb {
+    border-bottom: 1px solid var(--hz-line);
+    background: var(--hz-surface);
+}
+
+.hz-bny-crumb-nav {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding: 0.7rem 0;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--hz-muted);
+}
+
+.hz-bny-crumb-nav a {
+    color: var(--hz-ink) !important;
+    white-space: nowrap;
+}
+
+.hz-bny-crumb-nav a:hover {
+    text-decoration: underline;
+}
+
+.hz-bny-crumb-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-weight: 800;
+}
+
+.hz-bny-crumb-sep {
+    opacity: 0.45;
+}
+
+.hz-bny-crumb-current,
+.hz-bny-crumb-nav .is-current {
+    font-weight: 800;
+    color: var(--hz-ink);
+}
+
+.hz-store-market-body {
+    padding-top: 1.25rem;
+    padding-bottom: 1.25rem;
+}
+
+.hz-store-market-layout {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+}
+
+.hz-bny-sidebar {
+    display: none;
+    width: 16rem;
+    flex-shrink: 0;
+    position: sticky;
+    top: 5.5rem;
+    border: 1px solid var(--hz-line);
+    background: var(--hz-surface);
+    padding: 1rem;
+}
+
+.hz-bny-sidebar-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding-bottom: 0.85rem;
+    margin-bottom: 0.35rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.hz-bny-sidebar-title {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0;
+    font-size: 0.82rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.hz-bny-sidebar-reset {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--hz-muted) !important;
+}
+
+.hz-bny-sidebar-reset:hover {
+    color: var(--hz-ink) !important;
+}
+
+.hz-bny-filter-block {
+    border-bottom: 1px solid #f3f4f6;
+    padding: 0.85rem 0;
+}
+
+.hz-bny-filter-toggle {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    font-size: 0.72rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    color: var(--hz-ink);
+}
+
+.hz-bny-filter-panel {
+    display: none;
+    margin-top: 0.75rem;
+}
+
+.hz-bny-filter-block.is-open .hz-bny-filter-panel,
+.hz-bny-filter-panel.is-static {
+    display: block;
+}
+
+.hz-bny-filter-option {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.55rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+}
+
+.hz-bny-filter-option input {
+    accent-color: var(--hz-ink);
+}
+
+.hz-bny-filter-switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.65rem;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.hz-bny-filter-switch input {
+    width: 1rem;
+    height: 1rem;
+    accent-color: var(--hz-ink);
+}
+
+.hz-store-market-main {
+    flex: 1;
+    min-width: 0;
+}
+
+.hz-bny-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    border: 1px solid var(--hz-line);
+    background: var(--hz-surface);
+    padding: 0.75rem 0.9rem;
+    margin-bottom: 0.75rem;
+}
+
+.hz-bny-toolbar-title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 900;
+    line-height: 1.2;
+}
+
+.hz-bny-toolbar-count {
+    margin: 0.2rem 0 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--hz-muted);
+}
+
+.hz-bny-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.hz-bny-filter-mobile {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border: 0;
+    border-radius: 999px;
+    background: var(--hz-accent);
+    color: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.45rem 0.85rem;
+}
+
+.hz-bny-sort {
+    display: none;
+    align-items: center;
+    gap: 0.45rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #4b5563;
+    margin: 0;
+}
+
+.hz-bny-sort select {
+    border: 1px solid #d1d5db;
+    border-radius: 0.25rem;
+    background: #fff;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.35rem 0.5rem;
+    color: var(--hz-ink);
+}
+
+.hz-bny-pills {
+    display: flex;
+    gap: 0.45rem;
+    overflow-x: auto;
+    padding-bottom: 0.35rem;
+    margin-bottom: 0.85rem;
+    scrollbar-width: none;
+}
+
+.hz-bny-pills::-webkit-scrollbar {
+    display: none;
+}
+
+.hz-bny-pill {
+    flex-shrink: 0;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #fff;
+    color: #374151 !important;
+    font-size: 0.7rem;
+    font-weight: 700;
+    padding: 0.35rem 0.8rem;
+    white-space: nowrap;
+}
+
+.hz-bny-pill:hover,
+.hz-bny-pill.active {
+    border-color: var(--hz-accent);
+    background: var(--hz-accent);
+    color: #fff !important;
+}
+
+.hz-bny-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.65rem;
+}
+
+.hz-bny-card {
+    background: #fff;
+    overflow: hidden;
+    transition: box-shadow 0.2s ease;
+}
+
+.hz-bny-card:hover {
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+}
+
+.hz-bny-card-link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: inherit !important;
+}
+
+.hz-bny-card-media {
+    position: relative;
+    aspect-ratio: 4 / 5;
+    background: #f3f4f6;
+    overflow: hidden;
+}
+
+.hz-bny-card-media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.hz-bny-card:hover .hz-bny-card-media img {
+    transform: scale(1.05);
+}
+
+.hz-bny-card-placeholder {
+    height: 100%;
+    display: grid;
+    place-items: center;
+    font-size: 2rem;
+    color: var(--hz-accent);
+    background: var(--hz-accent-soft);
+}
+
+.hz-bny-card-badge {
+    position: absolute;
+    left: 0.45rem;
+    top: 0.45rem;
+    border-radius: 0.15rem;
+    background: rgba(0, 0, 0, 0.85);
+    color: #fff;
+    font-size: 0.55rem;
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    padding: 0.2rem 0.35rem;
+}
+
+.hz-bny-card-badge-new {
+    top: 1.65rem;
+    background: #dc2626;
+}
+
+.hz-bny-card-save {
+    position: absolute;
+    right: 0.45rem;
+    top: 0.45rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 0;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    background: rgba(255, 255, 255, 0.95);
+    color: #1f2937;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+    font-size: 0.8rem;
+    z-index: 2;
+}
+
+.hz-bny-card-save.is-saved {
+    color: #dc2626;
+}
+
+.hz-bny-card-save.is-saved i {
+    font-weight: 900;
+}
+
+.hz-bny-card-delivery {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: var(--hz-accent);
+    color: #fff;
+    text-align: center;
+    font-size: 0.55rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 0.25rem 0.35rem;
+}
+
+.hz-bny-card-body {
+    padding: 0.55rem 0.15rem 0.35rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    flex: 1;
+}
+
+.hz-bny-card-title {
+    margin: 0;
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.hz-bny-card-seller {
+    margin: 0;
+    font-size: 0.62rem;
+    color: #6b7280;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hz-bny-card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.62rem;
+    color: #9ca3af;
+    min-width: 0;
+}
+
+.hz-bny-card-meta span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hz-bny-card-price-row {
+    margin-top: 0.15rem;
+}
+
+.hz-bny-card-price {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: var(--hz-ink);
+}
+
+.hz-bny-card-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+}
+
+.hz-bny-card-chip {
+    border-radius: 0.2rem;
+    background: #f3f4f6;
+    color: #4b5563;
+    font-size: 0.55rem;
+    font-weight: 800;
+    padding: 0.2rem 0.35rem;
+}
+
+.hz-bny-card-chip-verified {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.hz-bny-empty {
+    border: 1px dashed var(--hz-line);
+    border-radius: 1rem;
+    background: #fff;
+    text-align: center;
+    padding: 3rem 1.5rem;
+}
+
+.hz-bny-empty i {
+    font-size: 2.25rem;
+    color: #9ca3af;
+    margin-bottom: 0.75rem;
+}
+
+.hz-bny-empty h2 {
+    font-size: 1rem;
+    font-weight: 900;
+    margin-bottom: 0.35rem;
+}
+
+.hz-bny-empty p {
+    color: var(--hz-muted);
+    font-size: 0.82rem;
+    margin-bottom: 1rem;
+}
+
+.hz-bny-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+}
+
+.hz-bny-sheet[hidden] {
+    display: none;
+}
+
+.hz-bny-sheet-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.hz-bny-sheet-panel {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    background: #fff;
+    border-radius: 1rem 1rem 0 0;
+    overflow: hidden;
+}
+
+.hz-bny-sheet-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.hz-bny-sheet-head h2 {
+    margin: 0;
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.hz-bny-sheet-close {
+    border: 0;
+    background: transparent;
+    color: #9ca3af;
+    padding: 0.25rem;
+}
+
+.hz-bny-sheet-body {
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.hz-bny-sheet-label {
+    margin: 0 0 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: #6b7280;
+}
+
+.hz-bny-sheet-sort {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.hz-bny-sheet-sort button {
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background: #f9fafb;
+    color: #374151;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.55rem 0.5rem;
+}
+
+.hz-bny-sheet-sort button.active {
+    border-color: var(--hz-accent);
+    background: var(--hz-accent);
+    color: #fff;
+}
+
+.hz-bny-sidebar-mobile {
+    display: block;
+    position: static;
+    width: 100%;
+    border: 0;
+    padding: 0;
+}
+
+.hz-bny-sheet-link {
+    display: block;
+    padding: 0.55rem 0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #374151 !important;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.hz-bny-sheet-link.active {
+    color: var(--hz-accent) !important;
+    font-weight: 800;
+}
+
+.hz-bny-sheet-foot {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    padding: 1rem;
+    border-top: 1px solid #f3f4f6;
+}
+
+.hz-bny-sheet-reset,
+.hz-bny-sheet-apply {
+    border: 0;
+    border-radius: 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 0.8rem 0.5rem;
+    text-align: center;
+}
+
+.hz-bny-sheet-reset {
+    background: #f3f4f6;
+    color: #374151 !important;
+}
+
+.hz-bny-sheet-apply {
+    background: var(--hz-accent);
+    color: #fff;
+}
+
+@media (min-width: 640px) {
+    .hz-bny-grid {
+        gap: 0.8rem;
+    }
+}
+
+@media (min-width: 768px) {
+    .hz-bny-filter-mobile {
+        display: none;
+    }
+
+    .hz-bny-sort {
+        display: flex;
+    }
+
+    .hz-bny-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 0.85rem;
+    }
+}
+
+@media (min-width: 992px) {
+    .hz-bny-sidebar {
+        display: block;
+    }
+
+    .hz-bny-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+/* JR Store — neighbourhood shop vibe (home teaser) */
 .hz-store-cats {
     display: flex;
     flex-wrap: wrap;
