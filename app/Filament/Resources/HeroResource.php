@@ -38,7 +38,7 @@ class HeroResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('subtitle')
                             ->label('Eyebrow')
-                            ->placeholder('e.g. Irrigation · WASH · Resilience')
+                            ->placeholder('e.g. Grass · Mobile · Hair')
                             ->helperText('Small label above the brand.')
                             ->maxLength(255),
                         Forms\Components\TextInput::make('title')
