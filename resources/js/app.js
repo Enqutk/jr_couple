@@ -67,45 +67,6 @@ function initHeader() {
 
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-
-    const collapse = document.getElementById('hzMainNav');
-    const toggler = document.querySelector('.hz-toggler');
-    if (collapse && toggler) {
-        const hideMenu = () => {
-            const instance = window.bootstrap?.Collapse?.getInstance(collapse)
-                ?? window.bootstrap?.Collapse?.getOrCreateInstance(collapse);
-            instance?.hide();
-        };
-
-        collapse.addEventListener('shown.bs.collapse', () => {
-            toggler.setAttribute('aria-expanded', 'true');
-            document.body.classList.add('hz-menu-open');
-        });
-        collapse.addEventListener('hidden.bs.collapse', () => {
-            toggler.setAttribute('aria-expanded', 'false');
-            document.body.classList.remove('hz-menu-open');
-        });
-
-        collapse.querySelectorAll('[data-hz-menu-close]').forEach((el) => {
-            el.addEventListener('click', hideMenu);
-        });
-
-        collapse.querySelectorAll('.hz-mobile-nav-link').forEach((link) => {
-            link.closest('a')?.addEventListener('click', () => {
-                if (window.innerWidth < 992 && !link.closest('.dropdown-toggle')) {
-                    hideMenu();
-                }
-            });
-        });
-
-        collapse.querySelectorAll('.hz-dropdown .dropdown-item').forEach((item) => {
-            item.addEventListener('click', () => {
-                if (window.innerWidth < 992) {
-                    hideMenu();
-                }
-            });
-        });
-    }
 }
 
 function initScrollReveal() {
