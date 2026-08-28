@@ -17,7 +17,7 @@ class OrganizationSeeder extends Seeder
             'tagline' => 'Artificial grass, mobiles, real estate, and hair — one trusted family of brands.',
             'meta_description' => 'JR — JR Ketema, JR Mobile, JR Real Estate, and Ruties Hair. Shop and connect with us.',
             'po_box' => '',
-            'address' => 'Addis Ababa, Ethiopia',
+            'address' => 'Bole Road, Addis Ababa, Ethiopia',
             'opening_hours' => [
                 [
                     'days' => ['mon', 'tue', 'wed', 'thu', 'fri', 'sat'],
@@ -36,6 +36,15 @@ class OrganizationSeeder extends Seeder
                 'line' => '#e7e5e4',
                 'dark' => '#1c1917',
             ],
+            'payment' => [
+                'currency' => 'ETB',
+                'telebirr_number' => '0911234567',
+                'telebirr_name' => 'JR Couple',
+                'bank_name' => 'Commercial Bank of Ethiopia (CBE)',
+                'bank_account' => '1000123456789',
+                'bank_account_name' => 'JR Couple Trading',
+                'payment_note' => 'Send the exact amount in ETB, then WhatsApp us your receipt and the product name to confirm your order.',
+            ],
             'status' => 'active',
         ];
 
@@ -51,7 +60,8 @@ class OrganizationSeeder extends Seeder
 
         foreach ([
             ['type' => 'email', 'value' => 'hello@jr.example'],
-            ['type' => 'phone', 'value' => '+251 911 000 000'],
+            ['type' => 'phone', 'value' => '+251 911 234 567'],
+            ['type' => 'phone', 'value' => '+251 911 876 543'],
         ] as $contact) {
             OrganizationContact::create(array_merge($contact, ['status' => StatusEnum::active]));
         }
