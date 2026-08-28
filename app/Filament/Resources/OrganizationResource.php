@@ -85,6 +85,34 @@ class OrganizationResource extends Resource
                     ])
                     ->columns(2)
                     ->collapsed(false),
+                Forms\Components\Section::make('Payment (ETB)')
+                    ->description('Shown on store product pages — Telebirr, bank transfer, and pay-in-store instructions.')
+                    ->schema([
+                        Forms\Components\TextInput::make('payment.telebirr_number')
+                            ->label('Telebirr number')
+                            ->tel()
+                            ->maxLength(30),
+                        Forms\Components\TextInput::make('payment.telebirr_name')
+                            ->label('Telebirr account name')
+                            ->maxLength(120),
+                        Forms\Components\TextInput::make('payment.bank_name')
+                            ->label('Bank name')
+                            ->placeholder('e.g. Commercial Bank of Ethiopia')
+                            ->maxLength(120),
+                        Forms\Components\TextInput::make('payment.bank_account')
+                            ->label('Bank account number')
+                            ->maxLength(60),
+                        Forms\Components\TextInput::make('payment.bank_account_name')
+                            ->label('Account holder name')
+                            ->maxLength(120),
+                        Forms\Components\Textarea::make('payment.payment_note')
+                            ->label('Payment note')
+                            ->rows(2)
+                            ->maxLength(500)
+                            ->columnSpanFull(),
+                    ])
+                    ->columns(2)
+                    ->collapsed(false),
                 Forms\Components\Grid::make(2)
                     ->schema([
                         Forms\Components\TextInput::make('address')
