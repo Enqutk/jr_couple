@@ -13,7 +13,7 @@ class OrganizationSeeder extends Seeder
     public function run(): void
     {
         $payload = [
-            'title' => 'JR',
+            'title' => 'JR Couple',
             'tagline' => 'Artificial grass, mobiles, real estate, and hair — one trusted family of brands.',
             'meta_description' => 'JR — JR Ketema, JR Mobile, JR Real Estate, and Ruties Hair. Shop and connect with us.',
             'po_box' => '',
