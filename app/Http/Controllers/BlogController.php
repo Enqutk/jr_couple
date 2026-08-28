@@ -3,21 +3,56 @@
 namespace App\Http\Controllers;
 
 use App\Enums\EntityTypeEnum;
+use App\Enums\PostSourceEnum;
 use App\Enums\StatusEnum;
 use App\Models\Entity;
+use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class BlogController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $posts = Entity::query()
+        $channel = $request->string('channel')->toString() ?: 'all';
+        $search = trim($request->string('q')->toString());
+
+        $base = Entity::query()
             ->where('status', StatusEnum::active)
             ->where('type', EntityTypeEnum::post)
-            ->with('media')
+            ->with('media');
+
+        $posts = (clone $base)
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($inner) use ($search) {
+                    $inner->where('name', 'like', '%'.$search.'%')
+                        ->orWhere('description', 'like', '%'.$search.'%')
+                        ->orWhere('category', 'like', '%'.$search.'%');
+                });
+            })
+            ->when($channel === 'tiktok', function ($query) {
+                $query->where('source', PostSourceEnum::social)
+                    ->where('link', 'like', '%tiktok%');
+            })
+            ->when($channel === 'tips', function ($query) {
+                $query->where(function ($inner) {
+                    $inner->where('source', PostSourceEnum::media)
+                        ->orWhereNull('source');
+                });
+            })
             ->orderBy('order')
+            ->orderByDesc('created_at')
             ->get();
 
-        return view('blog.index', compact('posts'));
+        $featured = $posts->first(fn (Entity $post) => filled($post->firstPostMediaUrl()))
+            ?? $posts->first();
+
+        $grid = $featured
+            ? $posts->reject(fn (Entity $post) => $post->id === $featured->id)->values()
+            : $posts;
+
+        $counts = $this->channelCounts((clone $base)->get());
+
+        return view('blog.index', compact('posts', 'featured', 'grid', 'channel', 'search', 'counts'));
     }
 
     public function show(Entity $entity)
@@ -44,5 +79,18 @@ class BlogController extends Controller
             ->get();
 
         return view('blog.show', compact('entity', 'related'));
+    }
+
+    /**
+     * @param  Collection<int, Entity>  $posts
+     * @return array{all: int, tiktok: int, tips: int}
+     */
+    private function channelCounts(Collection $posts): array
+    {
+        return [
+            'all' => $posts->count(),
+            'tiktok' => $posts->filter(fn (Entity $post) => $post->socialPlatform() === 'TikTok')->count(),
+            'tips' => $posts->filter(fn (Entity $post) => $post->isHostedPost())->count(),
+        ];
     }
 }

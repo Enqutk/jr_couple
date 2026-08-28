@@ -14,7 +14,7 @@ class ServiceMediaSeeder extends Seeder
 
         $bySlug = [
             'jr-ketema' => [
-                'main' => $base.'/home-lawn-turf.jpg',
+                'main' => $covers.'/ketema.jpg',
                 'secondary' => $base.'/sports-pitch-turf.jpg',
             ],
             'jr-mobile' => [

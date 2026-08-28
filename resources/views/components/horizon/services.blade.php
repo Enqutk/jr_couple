@@ -26,7 +26,7 @@
             @forelse($items as $index => $service)
                 @php
                     $jrFallbacks = [
-                        'jr-ketema' => asset('assets/images/jr/store/home-lawn-turf.jpg'),
+                        'jr-ketema' => asset('assets/images/jr/covers/ketema.jpg'),
                         'jr-mobile' => asset('assets/images/jr/covers/mobile-1.jpg'),
                         'jr-real-estate' => asset('assets/images/jr/covers/real-estate.jpg'),
                         'ruties-hair' => asset('assets/images/jr/covers/hair-avatar.jpg'),

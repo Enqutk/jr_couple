@@ -200,4 +200,25 @@ class Entity extends Model implements HasMedia
     {
         return $this->price !== null ? (float) $this->price : null;
     }
+
+    public function blogChannel(): string
+    {
+        if ($this->isSocialPost()) {
+            return strtolower($this->socialPlatform() ?: 'social');
+        }
+
+        return 'tips';
+    }
+
+    public function postedOn(): string
+    {
+        return $this->created_at?->format('M j, Y') ?? '';
+    }
+
+    public function readingMinutes(): int
+    {
+        $words = str_word_count(strip_tags((string) $this->description));
+
+        return max(1, (int) ceil($words / 180));
+    }
 }

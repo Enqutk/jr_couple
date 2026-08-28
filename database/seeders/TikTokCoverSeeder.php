@@ -25,6 +25,13 @@ class TikTokCoverSeeder extends Seeder
     private function attachServices(string $covers): void
     {
         $this->attachFile(
+            Service::query()->where('slug', 'jr-ketema')->first(),
+            'main_image',
+            $covers,
+            'ketema.jpg'
+        );
+
+        $this->attachFile(
             Service::query()->where('slug', 'jr-mobile')->first(),
             'main_image',
             $covers,
