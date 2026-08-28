@@ -9,6 +9,14 @@
         @endif
         Want it on the website?
     </div>
+    @if(!empty($thumbnail))
+        <img
+            src="{{ $thumbnail }}"
+            alt="TikTok cover"
+            class="w-full max-h-72 rounded-xl object-cover object-top border border-gray-200 dark:border-white/10"
+            referrerpolicy="no-referrer"
+        >
+    @endif
     @if($caption)
         <div class="rounded-xl border border-gray-200 bg-white p-3 leading-6 text-gray-800 dark:border-white/10 dark:bg-gray-900 dark:text-gray-100">
             <div class="mb-1 text-xs font-medium uppercase tracking-wide text-gray-500">Caption on that post</div>

@@ -147,11 +147,7 @@ class TikTokBlogImporter
         $thumbnail = trim((string) ($meta['thumbnail_url'] ?? ''));
 
         if ($thumbnail !== '') {
-            try {
-                $post->addMediaFromUrl($thumbnail)->toMediaCollection('image');
-            } catch (\Throwable) {
-                // TikTok thumbnails are optional; the social card still works without one.
-            }
+            app(TikTokCoverDownloader::class)->attach($post, $thumbnail, 'image');
         }
 
         return $post;

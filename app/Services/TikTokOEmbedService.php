@@ -56,7 +56,8 @@ class TikTokOEmbedService
 
         $response = Http::timeout(10)
             ->withHeaders([
-                'User-Agent' => 'Mozilla/5.0 (compatible; JRCoupleBot/1.0)',
+                'User-Agent' => TikTokCoverDownloader::USER_AGENT,
+                'Referer' => 'https://www.tiktok.com/',
             ])
             ->acceptJson()
             ->get('https://www.tiktok.com/oembed', [

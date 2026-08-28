@@ -48,6 +48,7 @@ class ImportTikTokPostAction
                         $set('tiktok_caption', null);
                         $set('tiktok_author', null);
                         $set('tiktok_handle', null);
+                        $set('tiktok_thumbnail', null);
 
                         $meta = app(TikTokOEmbedService::class)->fetch($state);
 
@@ -62,6 +63,7 @@ class ImportTikTokPostAction
                         $set('tiktok_caption', $meta['caption']);
                         $set('tiktok_author', $meta['author_name']);
                         $set('tiktok_handle', $meta['handle']);
+                        $set('tiktok_thumbnail', $meta['thumbnail_url']);
 
                         if (blank($get('account')) && filled($meta['handle'])) {
                             $set('account', $meta['handle']);
@@ -75,6 +77,7 @@ class ImportTikTokPostAction
                 Forms\Components\Hidden::make('tiktok_caption')->dehydrated(false),
                 Forms\Components\Hidden::make('tiktok_author')->dehydrated(false),
                 Forms\Components\Hidden::make('tiktok_handle')->dehydrated(false),
+                Forms\Components\Hidden::make('tiktok_thumbnail')->dehydrated(false),
                 Forms\Components\Hidden::make('tiktok_error')->dehydrated(false),
                 Forms\Components\Placeholder::make('tiktok_bot')
                     ->label('')
@@ -83,6 +86,7 @@ class ImportTikTokPostAction
                         'caption' => $get('tiktok_caption'),
                         'author' => $get('tiktok_author'),
                         'handle' => $get('tiktok_handle') ?: $get('account'),
+                        'thumbnail' => $get('tiktok_thumbnail'),
                         'error' => $get('tiktok_error'),
                     ])->render())),
                 Forms\Components\Toggle::make('post_to_website')
