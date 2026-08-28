@@ -64,7 +64,7 @@ class TikTokCoverSeeder extends Seeder
         $posts = [
             [
                 'match_names' => ['JR Couple on TikTok', 'We are officially open'],
-                'match_link' => '%tiktok.com/@ruthandjonas%',
+                'match_link' => '%/video/7635635118391971079%',
                 'name' => 'We are officially open',
                 'category' => 'TikTok',
                 'link' => 'https://www.tiktok.com/@ruthandjonas/video/7635635118391971079',
@@ -91,6 +91,16 @@ class TikTokCoverSeeder extends Seeder
                 'description' => 'Installs and looks from Ruth’s Hair — follow on TikTok.',
                 'order' => 3,
                 'cover' => 'hair-avatar.jpg',
+            ],
+            [
+                'match_names' => ['Why artificial grass works in Addis sun', 'Presenting our newest product'],
+                'match_link' => '%/video/7672753308582399250%',
+                'name' => 'Presenting our newest product',
+                'category' => 'TikTok',
+                'link' => 'https://www.tiktok.com/@ruthandjonas/video/7672753308582399250',
+                'description' => 'Presenting our newest product — JR Ketema. Tap to watch on TikTok.',
+                'order' => 4,
+                'cover' => 'ketema.jpg',
             ],
         ];
 

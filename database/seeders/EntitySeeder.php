@@ -134,12 +134,13 @@ class EntitySeeder extends Seeder
             ],
             // Blog posts — hosted on this site
             [
-                'name' => 'Why artificial grass works in Addis sun',
+                'name' => 'Presenting our newest product',
                 'type' => EntityTypeEnum::post,
-                'source' => PostSourceEnum::media,
-                'category' => 'JR Ketema',
-                'description' => 'Tips on pile height, UV resistance, and keeping turf clean through dusty seasons.',
-                'order' => 11,
+                'source' => PostSourceEnum::social,
+                'category' => 'TikTok',
+                'link' => 'https://www.tiktok.com/@ruthandjonas/video/7672753308582399250',
+                'description' => 'Presenting our newest product — JR Ketema. Tap to watch on TikTok.',
+                'order' => 4,
             ],
             [
                 'name' => 'How to pick a phone that fits your budget',
