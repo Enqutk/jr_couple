@@ -12,6 +12,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
@@ -73,6 +74,20 @@ class EntityResource extends Resource
                             ->maxLength(65535)
                             ->nullable()
                             ->columnSpanFull(),
+                        TextInput::make('price')
+                            ->label('Price (ETB)')
+                            ->numeric()
+                            ->minValue(0)
+                            ->nullable()
+                            ->visible(fn ($get) => $get('type') === EntityTypeEnum::product->value),
+                        TextInput::make('price_label')
+                            ->label('Price label')
+                            ->placeholder('e.g. /month, per sqm')
+                            ->maxLength(60)
+                            ->visible(fn ($get) => $get('type') === EntityTypeEnum::product->value),
+                        Toggle::make('is_negotiable')
+                            ->label('Negotiable price')
+                            ->visible(fn ($get) => $get('type') === EntityTypeEnum::product->value),
                         SpatieMediaLibraryFileUpload::make('image')
                             ->label('Image')
                             ->collection('image')
@@ -90,6 +105,10 @@ class EntityResource extends Resource
                             ->minValue(1)
                             ->required()
                             ->helperText('Lower numbers appear first.'),
+                        Toggle::make('is_featured')
+                            ->label('Feature on store hero')
+                            ->helperText('Only one product can be promoted on the store hero at a time.')
+                            ->visible(fn ($get) => $get('type') === EntityTypeEnum::product->value),
                         Select::make('status')
                             ->options(StatusEnum::class)
                             ->default(StatusEnum::active)
@@ -109,7 +128,16 @@ class EntityResource extends Resource
                 TextColumn::make('name')->searchable()->sortable(),
                 TextColumn::make('type')->badge()->sortable(),
                 TextColumn::make('category')->toggleable(),
+                TextColumn::make('price')
+                    ->label('ETB')
+                    ->money('ETB')
+                    ->sortable()
+                    ->toggleable(),
                 TextColumn::make('order')->sortable(),
+                Tables\Columns\IconColumn::make('is_featured')
+                    ->label('Store hero')
+                    ->boolean()
+                    ->toggleable(),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (StatusEnum $state): string => match ($state) {
