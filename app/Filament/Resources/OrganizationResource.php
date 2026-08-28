@@ -88,7 +88,7 @@ class OrganizationResource extends Resource
                     ->columns(2)
                     ->collapsed(false),
                 Forms\Components\Section::make('Payment (ETB)')
-                    ->description('Shown on store product pages — Telebirr, bank transfer, and pay-in-store instructions.')
+                    ->description('Used on store product pages. The footer only lists accepted methods, not account numbers.')
                     ->schema([
                         Forms\Components\TextInput::make('payment.telebirr_number')
                             ->label('Telebirr number')
@@ -127,6 +127,7 @@ class OrganizationResource extends Resource
                     ]),
                 Forms\Components\Repeater::make('opening_hours')
                     ->label('Opening Hours')
+                    ->helperText('Shown in the site footer and on the contact page.')
                     ->schema([
                         Forms\Components\Select::make('days')
                             ->label('Days')

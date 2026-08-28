@@ -67,6 +67,17 @@
                     Get in touch
                 </a>
             </div>
+            @if($service->socialLinks())
+                <div class="hz-service-detail-hero-social">
+                    <span>Follow {{ $service->title }}</span>
+                    @foreach($service->socialLinks() as $social)
+                        <a href="{{ $social['url'] }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $service->title }} on {{ $social['label'] }}">
+                            <i class="bi {{ $social['icon'] }}"></i>
+                            {{ $social['label'] }}
+                        </a>
+                    @endforeach
+                </div>
+            @endif
         </div>
     </section>
 
@@ -140,6 +151,11 @@
                             <a href="{{ route('store.index', ['category' => $service->slug]) }}" class="hz-services-shop-link">
                                 Browse store listings <i class="bi bi-arrow-right"></i>
                             </a>
+                            @foreach($service->socialLinks() as $social)
+                                <a href="{{ $social['url'] }}" class="hz-services-shop-link" target="_blank" rel="noopener noreferrer">
+                                    <i class="bi {{ $social['icon'] }}"></i> {{ $social['label'] }}
+                                </a>
+                            @endforeach
                         </div>
                     </div>
                 </div>
@@ -175,11 +191,5 @@
             </div>
         </section>
     @endif
-
-    <x-horizon.cta
-        title="Not sure which brand fits?"
-        text="Tell us what you need — turf, a phone, property, or hair — and we will connect you to the right JR team."
-        button="Start a conversation"
-    />
 </div>
 @endsection

@@ -8,13 +8,20 @@ use App\Enums\StatusEnum;
 use App\Filament\Concerns\AuthorizesWithPermission;
 use App\Filament\Resources\BlogPostResource\Pages;
 use App\Models\Entity;
+use App\Services\TikTokBlogImporter;
+use App\Services\TikTokOEmbedService;
+use Filament\Forms\Components\Hidden;
+use Filament\Forms\Components\Placeholder;
 use Filament\Forms\Components\Radio;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
@@ -82,8 +89,40 @@ class BlogPostResource extends Resource
                             ->maxLength(2048)
                             ->required(fn ($get) => static::sourceIs($get, PostSourceEnum::social))
                             ->visible(fn ($get) => static::sourceIs($get, PostSourceEnum::social))
-                            ->helperText('TikTok, Telegram, Instagram, YouTube, or any public post URL.')
+                            ->live(onBlur: true)
+                            ->helperText('TikTok, Telegram, Instagram, YouTube, or any public post URL. For TikTok, paste a video link and we will offer the original caption.')
+                            ->afterStateUpdated(function (?string $state, Set $set, Get $get): void {
+                                static::fillTikTokMeta($state, $set, $get);
+                            })
                             ->columnSpanFull(),
+                        Hidden::make('tiktok_caption')->dehydrated(false),
+                        Hidden::make('tiktok_author')->dehydrated(false),
+                        Hidden::make('tiktok_handle')->dehydrated(false),
+                        Hidden::make('tiktok_error')->dehydrated(false),
+                        Placeholder::make('tiktok_bot')
+                            ->label('')
+                            ->columnSpanFull()
+                            ->visible(fn ($get) => static::sourceIs($get, PostSourceEnum::social)
+                                && (filled($get('tiktok_caption')) || filled($get('tiktok_error'))))
+                            ->content(fn ($get) => new \Illuminate\Support\HtmlString(view('filament.tiktok-bot-prompt', [
+                                'caption' => $get('tiktok_caption'),
+                                'author' => $get('tiktok_author'),
+                                'handle' => $get('tiktok_handle'),
+                                'error' => $get('tiktok_error'),
+                            ])->render())),
+                        Toggle::make('use_exact_caption')
+                            ->label('Can I use the exact caption from that TikTok?')
+                            ->helperText('Turn on to keep the same words as the TikTok. Turn off to write your own below.')
+                            ->default(true)
+                            ->live()
+                            ->dehydrated(false)
+                            ->columnSpanFull()
+                            ->visible(fn ($get) => static::sourceIs($get, PostSourceEnum::social) && filled($get('tiktok_caption')))
+                            ->afterStateUpdated(function (?bool $state, Set $set, Get $get): void {
+                                if ($state && filled($get('tiktok_caption'))) {
+                                    $set('description', $get('tiktok_caption'));
+                                }
+                            }),
                         Textarea::make('description')
                             ->rows(6)
                             ->maxLength(65535)
@@ -232,5 +271,41 @@ class BlogPostResource extends Resource
         }
 
         return $value === $expected->value;
+    }
+
+    protected static function fillTikTokMeta(?string $state, Set $set, Get $get): void
+    {
+        $set('tiktok_caption', null);
+        $set('tiktok_author', null);
+        $set('tiktok_handle', null);
+        $set('tiktok_error', null);
+
+        if (! static::sourceIs($get, PostSourceEnum::social)) {
+            return;
+        }
+
+        $oembed = app(TikTokOEmbedService::class);
+
+        if (! $oembed->isTikTokUrl($state)) {
+            return;
+        }
+
+        $meta = $oembed->fetch($state);
+
+        if ($meta === null) {
+            $set('tiktok_error', 'Could not read that TikTok. Make sure the video is public.');
+
+            return;
+        }
+
+        $set('tiktok_caption', $meta['caption']);
+        $set('tiktok_author', $meta['author_name']);
+        $set('tiktok_handle', $meta['handle']);
+        $set('use_exact_caption', true);
+        $set('description', $meta['caption']);
+
+        if (blank($get('name')) && filled($meta['caption'])) {
+            $set('name', app(TikTokBlogImporter::class)->titleFromCaption($meta['caption']));
+        }
     }
 }

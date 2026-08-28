@@ -22,5 +22,4 @@
         :show-filters="true"
         :show-header="false"
     />
-    <x-horizon.cta />
 @endsection

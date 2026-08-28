@@ -66,6 +66,4 @@
         @endforelse
     </div>
 </section>
-
-<x-horizon.cta />
 @endsection

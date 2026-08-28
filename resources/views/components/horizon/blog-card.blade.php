@@ -39,7 +39,7 @@
             <a href="{{ $href }}">{{ $post->name }}</a>
         </h3>
         @if($post->description)
-            <p>{{ \Illuminate\Support\Str::limit(strip_tags((string) $post->description), 120) }}</p>
+            <p class="{{ $isSocial ? 'hz-blog-caption' : '' }}">{{ \Illuminate\Support\Str::limit(strip_tags((string) $post->description), 140) }}</p>
         @endif
         <a href="{{ $href }}" class="hz-link">{{ $cta }} <i class="bi bi-arrow-right"></i></a>
     </div>

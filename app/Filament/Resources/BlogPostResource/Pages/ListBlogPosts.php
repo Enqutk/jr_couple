@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\BlogPostResource\Pages;
 
+use App\Filament\Actions\ImportTikTokPostAction;
 use App\Filament\Resources\BlogPostResource;
 use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
@@ -13,6 +14,7 @@ class ListBlogPosts extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
+            ImportTikTokPostAction::make(),
             Actions\CreateAction::make(),
         ];
     }

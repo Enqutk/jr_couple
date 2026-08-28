@@ -24,6 +24,8 @@ class Service extends Model implements HasMedia {
         'title',
         'short_description',
         'quote',
+        'instagram_url',
+        'tiktok_url',
         'description',
         'features',
         'order',
@@ -107,4 +109,30 @@ class Service extends Model implements HasMedia {
                 }
                 return $query;
             }
+
+    /**
+     * @return array<int, array{label: string, url: string, icon: string}>
+     */
+    public function socialLinks(): array
+    {
+        $links = [];
+
+        if (filled($this->instagram_url)) {
+            $links[] = [
+                'label' => 'Instagram',
+                'url' => $this->instagram_url,
+                'icon' => 'bi-instagram',
+            ];
         }
+
+        if (filled($this->tiktok_url)) {
+            $links[] = [
+                'label' => 'TikTok',
+                'url' => $this->tiktok_url,
+                'icon' => 'bi-tiktok',
+            ];
+        }
+
+        return $links;
+    }
+}

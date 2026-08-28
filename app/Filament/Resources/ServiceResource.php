@@ -69,6 +69,22 @@ class ServiceResource extends Resource
                     ])
                     ->columns(2),
 
+                Forms\Components\Section::make('Social accounts')
+                    ->description('Leave blank if this brand has no page yet (JR Ketema and JR Real Estate). Footer still uses the main JR Couple accounts.')
+                    ->schema([
+                        Forms\Components\TextInput::make('instagram_url')
+                            ->label('Instagram')
+                            ->url()
+                            ->maxLength(2048)
+                            ->placeholder('https://www.instagram.com/…'),
+                        Forms\Components\TextInput::make('tiktok_url')
+                            ->label('TikTok')
+                            ->url()
+                            ->maxLength(2048)
+                            ->placeholder('https://www.tiktok.com/@…'),
+                    ])
+                    ->columns(2),
+
                 Forms\Components\Section::make('Images')
                     ->schema([
                         SpatieMediaLibraryFileUpload::make('main_image')

@@ -77,6 +77,7 @@ class HomeContentService
             'fax' => $contacts->get('fax', collect())->pluck('value')->all(),
             'address' => $organization->address ?? null,
             'working_days' => $organization->opening_hours ?? [],
+            'hours' => $this->formatOpeningHours($organization?->opening_hours ?? []),
             'map' => $organization->map_url ?? null,
 
             'heroFeatures' => $blocks->get('key-features'),
@@ -123,5 +124,44 @@ class HomeContentService
             'statsTitle' => $statsBlock?->title ?: 'Impact that compounds',
             'statsSubtitle' => $statsBlock?->subtitle ?: 'By the numbers',
         ];
+    }
+
+    /**
+     * @param  array<int, array{days?: mixed, from?: mixed, to?: mixed}>  $hours
+     * @return array<int, array{label: string, from: string, to: string}>
+     */
+    private function formatOpeningHours(?array $hours): array
+    {
+        $labels = [
+            'mon' => 'Mon', 'tue' => 'Tue', 'wed' => 'Wed', 'thu' => 'Thu',
+            'fri' => 'Fri', 'sat' => 'Sat', 'sun' => 'Sun',
+        ];
+
+        $formatted = [];
+
+        foreach ($hours ?? [] as $slot) {
+            if (empty($slot['days']) || empty($slot['from']) || empty($slot['to'])) {
+                continue;
+            }
+
+            $days = collect($slot['days'])
+                ->map(fn ($day) => $labels[$day] ?? $day)
+                ->values()
+                ->all();
+
+            if ($days === []) {
+                continue;
+            }
+
+            $formatted[] = [
+                'label' => count($days) === 1
+                    ? $days[0]
+                    : $days[0].' – '.$days[array_key_last($days)],
+                'from' => substr((string) $slot['from'], 0, 5),
+                'to' => substr((string) $slot['to'], 0, 5),
+            ];
+        }
+
+        return $formatted;
     }
 }

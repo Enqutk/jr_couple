@@ -67,11 +67,13 @@ class OrganizationSeeder extends Seeder
         }
 
         foreach ([
-            ['title' => 'Facebook', 'icon_class' => 'fa-brands fa-facebook-f', 'link' => 'https://www.facebook.com/'],
-            ['title' => 'Instagram', 'icon_class' => 'fa-brands fa-instagram', 'link' => 'https://www.instagram.com/'],
-            ['title' => 'TikTok', 'icon_class' => 'fa-brands fa-tiktok', 'link' => 'https://www.tiktok.com/'],
-        ] as $social) {
-            SocialRef::create(array_merge($social, ['status' => StatusEnum::active]));
+            ['title' => 'Instagram', 'icon_class' => 'bi bi-instagram', 'link' => 'https://www.instagram.com/j.r._c.o.u.p.l.e/'],
+            ['title' => 'TikTok', 'icon_class' => 'bi bi-tiktok', 'link' => 'https://www.tiktok.com/@ruthandjonas'],
+        ] as $index => $social) {
+            SocialRef::create(array_merge($social, [
+                'status' => StatusEnum::active,
+                'order' => $index + 1,
+            ]));
         }
     }
 }

@@ -70,5 +70,4 @@
     />
     <x-horizon.team :team="$team" :show-bios="true" />
     <x-horizon.clients :clients="$clients" />
-    <x-horizon.cta />
 @endsection

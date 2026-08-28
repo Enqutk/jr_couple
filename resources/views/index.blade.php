@@ -103,5 +103,4 @@
         </section>
     @endif
 
-    <x-horizon.cta title="Visit JR or message us" :text="$data['tagline'] ?? null" button="Contact JR" />
 @endsection

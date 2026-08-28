@@ -104,11 +104,5 @@
             </div>
         </div>
     </section>
-
-    <x-horizon.cta
-        title="Need help choosing a brand?"
-        text="Tell us what you are looking for — turf, a phone, property, or hair products — and we will point you to the right JR team."
-        button="Get in touch"
-    />
 </div>
 @endsection
