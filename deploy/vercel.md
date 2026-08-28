@@ -1,4 +1,4 @@
-# Deploy MajiWorks to Vercel
+# Deploy JR Couple to Vercel
 
 Vercel runs this Laravel app as a **serverless PHP function** (`vercel-php`). That works for a demo, but it is a weak fit for Filament + MySQL + file uploads long-term. Prefer Railway, Render, or a VPS for production.
 
