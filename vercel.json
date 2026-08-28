@@ -33,7 +33,7 @@
     }
   ],
   "env": {
-    "APP_NAME": "MajiWorks",
+    "APP_NAME": "JR Couple",
     "APP_ENV": "production",
     "APP_DEBUG": "false",
     "LOG_CHANNEL": "stderr",
