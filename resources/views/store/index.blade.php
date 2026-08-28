@@ -5,12 +5,126 @@
 
 @php
     $location = $data['address'] ?? 'Addis Ababa, Ethiopia';
-    $pageTitle = $activeService?->title ?? 'All products';
+    $pageTitle = match ($feed) {
+        'new' => 'Newly posted',
+        'trending' => 'Trending now',
+        default => $activeService?->title ?? 'All products',
+    };
     $productCount = $products->count();
+    $storeBaseQuery = array_filter([
+        'category' => $category,
+        'q' => $search ?: null,
+    ]);
+    $feedUrl = fn (string $value) => route('store.index', array_merge(
+        $storeBaseQuery,
+        $value === 'all' ? [] : ['feed' => $value]
+    ));
 @endphp
 
 @section('content')
 <div class="hz-store-market">
+    @if($featuredProduct)
+        @php
+            $featuredCategory = $services->firstWhere('slug', $featuredProduct->category)?->title;
+        @endphp
+        <x-horizon.store-hero
+            :product="$featuredProduct"
+            :category-label="$featuredCategory"
+            badge="Promoted"
+            tag="#JRFeatured"
+        />
+    @endif
+
+    <div class="hz-store-topbar">
+        <div class="container">
+            <form action="{{ route('store.index') }}" method="get" class="hz-store-search" role="search">
+                @if($category)
+                    <input type="hidden" name="category" value="{{ $category }}">
+                @endif
+                @if($feed !== 'all')
+                    <input type="hidden" name="feed" value="{{ $feed }}">
+                @endif
+                <label class="visually-hidden" for="store-search">Search store</label>
+                <i class="bi bi-search"></i>
+                <input
+                    id="store-search"
+                    type="search"
+                    name="q"
+                    value="{{ $search }}"
+                    placeholder="Search products..."
+                    autocomplete="off"
+                >
+                <button type="submit" class="hz-store-search-btn">Search</button>
+            </form>
+
+            <div class="hz-store-feed-tabs" role="tablist" aria-label="Store feeds">
+                <a href="{{ $feedUrl('all') }}" class="hz-store-feed-tab {{ $feed === 'all' ? 'active' : '' }}">All</a>
+                <a href="{{ $feedUrl('new') }}" class="hz-store-feed-tab {{ $feed === 'new' ? 'active' : '' }}">Newly posted</a>
+                <a href="{{ $feedUrl('trending') }}" class="hz-store-feed-tab {{ $feed === 'trending' ? 'active' : '' }}">Trending</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="hz-store-trust-row">
+            <div class="hz-store-trust-item">
+                <span class="hz-store-trust-icon"><i class="bi bi-patch-check-fill"></i></span>
+                <span>
+                    <strong>Verified listings</strong>
+                    <small>Direct JR contact & pickup</small>
+                </span>
+            </div>
+            <a href="{{ $feedUrl('new') }}" class="hz-store-trust-item hz-store-trust-link">
+                <span class="hz-store-trust-icon hz-store-trust-icon-hot"><i class="bi bi-lightning-charge-fill"></i></span>
+                <span>
+                    <strong>New arrivals</strong>
+                    <small>Freshly posted items</small>
+                </span>
+                <i class="bi bi-chevron-right"></i>
+            </a>
+        </div>
+
+        @if(! $category && ! $search && $feed === 'all' && $dealProducts->isNotEmpty())
+            <div class="hz-store-spotlight-grid">
+                <section class="hz-store-spotlight">
+                    <div class="hz-store-spotlight-head">
+                        <h2>Super<span>Deals</span></h2>
+                        <a href="{{ $feedUrl('trending') }}" class="hz-store-spotlight-link">View details <i class="bi bi-chevron-right"></i></a>
+                    </div>
+                    <div class="hz-store-spotlight-items">
+                        @foreach($dealProducts as $product)
+                            @php $img = $product->getFirstMediaUrl('image'); @endphp
+                            <a href="{{ route('store.show', $product) }}" class="hz-store-spotlight-card">
+                                <span class="hz-store-spotlight-tag">Super</span>
+                                @if($img)
+                                    <img src="{{ $img }}" alt="{{ $product->name }}">
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                </section>
+
+                <section class="hz-store-spotlight">
+                    <div class="hz-store-spotlight-head">
+                        <h2>Trends</h2>
+                        <a href="#store-trending" class="hz-store-spotlight-link">View details <i class="bi bi-chevron-right"></i></a>
+                    </div>
+                    <div class="hz-store-spotlight-items hz-store-spotlight-items-trends">
+                        @foreach($trendingProducts->take(2) as $product)
+                            @php $img = $product->getFirstMediaUrl('image'); @endphp
+                            <a href="{{ route('store.show', $product) }}" class="hz-store-spotlight-card hz-store-spotlight-card-tall">
+                                <span class="hz-store-spotlight-tag">Trends</span>
+                                @if($img)
+                                    <img src="{{ $img }}" alt="{{ $product->name }}">
+                                @endif
+                            </a>
+                        @endforeach
+                    </div>
+                </section>
+            </div>
+        @endif
+    </div>
+
     <div class="hz-bny-crumb">
         <div class="container">
             <nav class="hz-bny-crumb-nav" aria-label="Breadcrumb">
@@ -18,7 +132,7 @@
                     <i class="bi bi-arrow-left"></i> Home
                 </a>
                 <span class="hz-bny-crumb-sep">/</span>
-                <a href="{{ route('store.index') }}" class="{{ $category ? '' : 'is-current' }}">Store</a>
+                <a href="{{ route('store.index') }}" class="{{ $category || $search || $feed !== 'all' ? '' : 'is-current' }}">Store</a>
                 @if($activeService)
                     <span class="hz-bny-crumb-sep">/</span>
                     <span class="hz-bny-crumb-current">{{ $activeService->title }}</span>
@@ -44,7 +158,7 @@
                     </button>
                     <div class="hz-bny-filter-panel">
                         <label class="hz-bny-filter-option">
-                            <input type="radio" name="store_category" value="" @checked(! $category) data-store-category-link="{{ route('store.index') }}">
+                            <input type="radio" name="store_category" value="" @checked(! $category) data-store-category-link="{{ route('store.index', array_filter(['feed' => $feed !== 'all' ? $feed : null, 'q' => $search ?: null])) }}">
                             <span>All brands</span>
                         </label>
                         @foreach($services as $service)
@@ -54,37 +168,26 @@
                                     name="store_category"
                                     value="{{ $service->slug }}"
                                     @checked($category === $service->slug)
-                                    data-store-category-link="{{ route('store.index', ['category' => $service->slug]) }}"
+                                    data-store-category-link="{{ route('store.index', array_filter(['category' => $service->slug, 'feed' => $feed !== 'all' ? $feed : null, 'q' => $search ?: null])) }}"
                                 >
                                 <span>{{ $service->title }}</span>
                             </label>
                         @endforeach
                     </div>
                 </div>
-
-                <div class="hz-bny-filter-block is-open" data-filter-section>
-                    <button type="button" class="hz-bny-filter-toggle" data-filter-toggle>
-                        Availability
-                        <i class="bi bi-chevron-up"></i>
-                    </button>
-                    <div class="hz-bny-filter-panel">
-                        <label class="hz-bny-filter-switch">
-                            <span>In stock today</span>
-                            <input type="checkbox" checked disabled>
-                        </label>
-                        <label class="hz-bny-filter-switch">
-                            <span>Negotiable prices</span>
-                            <input type="checkbox" checked disabled>
-                        </label>
-                    </div>
-                </div>
             </aside>
 
             <div class="hz-store-market-main">
-                <div class="hz-bny-toolbar">
+                <div class="hz-bny-toolbar" id="store-trending">
                     <div>
                         <h1 class="hz-bny-toolbar-title">{{ $pageTitle }}</h1>
-                        <p class="hz-bny-toolbar-count">{{ $productCount }} {{ \Illuminate\Support\Str::plural('item', $productCount) }}</p>
+                        <p class="hz-bny-toolbar-count">
+                            @if($search)
+                                {{ $productCount }} results for “{{ $search }}”
+                            @else
+                                {{ $productCount }} {{ \Illuminate\Support\Str::plural('item', $productCount) }}
+                            @endif
+                        </p>
                     </div>
                     <div class="hz-bny-toolbar-actions">
                         <button type="button" class="hz-bny-filter-mobile" data-store-filter-open>
@@ -93,8 +196,9 @@
                         <label class="hz-bny-sort">
                             <span>Sort by</span>
                             <select data-store-sort>
-                                <option value="recommended">Recommend</option>
-                                <option value="newest">Newest</option>
+                                <option value="recommended" @selected($feed === 'all')>Recommend</option>
+                                <option value="newest" @selected($feed === 'new')>Newest</option>
+                                <option value="trending" @selected($feed === 'trending')>Trending</option>
                                 <option value="name_asc">Name: A–Z</option>
                                 <option value="name_desc">Name: Z–A</option>
                             </select>
@@ -103,16 +207,40 @@
                 </div>
 
                 <div class="hz-bny-pills" role="tablist" aria-label="Store categories">
-                    <a href="{{ route('store.index') }}" class="hz-bny-pill {{ ! $category ? 'active' : '' }}">All</a>
+                    <a href="{{ $feedUrl($feed) }}" class="hz-bny-pill {{ ! $category ? 'active' : '' }}">All</a>
                     @foreach($services as $service)
                         <a
-                            href="{{ route('store.index', ['category' => $service->slug]) }}"
+                            href="{{ route('store.index', array_filter(['category' => $service->slug, 'feed' => $feed !== 'all' ? $feed : null, 'q' => $search ?: null])) }}"
                             class="hz-bny-pill {{ $category === $service->slug ? 'active' : '' }}"
                         >
                             {{ $service->title }}
                         </a>
                     @endforeach
                 </div>
+
+                @if($feed === 'all' && ! $search && $newProducts->isNotEmpty())
+                    <div class="hz-store-section-label">
+                        <span></span>
+                        <h2>Newly posted</h2>
+                        <span></span>
+                    </div>
+                    <div class="hz-bny-grid hz-store-mini-grid mb-4">
+                        @foreach($newProducts as $product)
+                            @php $catLabel = $services->firstWhere('slug', $product->category)?->title ?? $product->category; @endphp
+                            <x-horizon.store-product-card
+                                :product="$product"
+                                :category-label="$catLabel"
+                                :location="$location"
+                                :is-new="true"
+                            />
+                        @endforeach
+                    </div>
+                    <div class="hz-store-section-label">
+                        <span></span>
+                        <h2>For you</h2>
+                        <span></span>
+                    </div>
+                @endif
 
                 @if($products->isNotEmpty())
                     <div class="hz-bny-grid" data-store-grid>
@@ -124,7 +252,7 @@
                                 :product="$product"
                                 :category-label="$catLabel"
                                 :location="$location"
-                                :is-new="$product->order <= 2"
+                                :is-new="$product->created_at?->greaterThan(now()->subDays(14))"
                             />
                         @endforeach
                     </div>
@@ -132,7 +260,7 @@
                     <div class="hz-bny-empty">
                         <i class="bi bi-stars"></i>
                         <h2>No listings found</h2>
-                        <p>Try another category or contact us for custom orders.</p>
+                        <p>Try another search, category, or feed.</p>
                         <a href="{{ route('store.index') }}" class="btn-hz">Browse all</a>
                     </div>
                 @endif
@@ -150,21 +278,44 @@
                 </button>
             </div>
             <div class="hz-bny-sheet-body">
+                <form action="{{ route('store.index') }}" method="get" class="hz-store-search hz-store-search-sheet">
+                    <label class="hz-bny-sheet-label" for="store-search-sheet">Search</label>
+                    <div class="hz-store-search-field">
+                        <i class="bi bi-search"></i>
+                        <input id="store-search-sheet" type="search" name="q" value="{{ $search }}" placeholder="Search products...">
+                    </div>
+                    @if($category)
+                        <input type="hidden" name="category" value="{{ $category }}">
+                    @endif
+                    @if($feed !== 'all')
+                        <input type="hidden" name="feed" value="{{ $feed }}">
+                    @endif
+                    <button type="submit" class="hz-store-search-btn hz-store-search-btn-block">Search store</button>
+                </form>
+
+                <p class="hz-bny-sheet-label">Feed</p>
+                <div class="hz-store-sheet-feeds">
+                    <a href="{{ $feedUrl('all') }}" class="{{ $feed === 'all' ? 'active' : '' }}">All</a>
+                    <a href="{{ $feedUrl('new') }}" class="{{ $feed === 'new' ? 'active' : '' }}">Newly posted</a>
+                    <a href="{{ $feedUrl('trending') }}" class="{{ $feed === 'trending' ? 'active' : '' }}">Trending</a>
+                </div>
+
                 <p class="hz-bny-sheet-label">Sort by</p>
                 <div class="hz-bny-sheet-sort" data-store-sheet-sort>
-                    <button type="button" class="active" data-sort="recommended">Recommend</button>
-                    <button type="button" data-sort="newest">Newest</button>
+                    <button type="button" class="{{ $feed === 'all' ? 'active' : '' }}" data-sort="recommended">Recommend</button>
+                    <button type="button" class="{{ $feed === 'new' ? 'active' : '' }}" data-sort="newest">Newest</button>
+                    <button type="button" class="{{ $feed === 'trending' ? 'active' : '' }}" data-sort="trending">Trending</button>
                     <button type="button" data-sort="name_asc">Name A–Z</button>
-                    <button type="button" data-sort="name_desc">Name Z–A</button>
                 </div>
+
                 <div class="hz-bny-sidebar hz-bny-sidebar-mobile">
                     <div class="hz-bny-filter-block is-open">
                         <p class="hz-bny-sheet-label">Category</p>
                         <div class="hz-bny-filter-panel is-static">
-                            <a href="{{ route('store.index') }}" class="hz-bny-sheet-link {{ ! $category ? 'active' : '' }}">All brands</a>
+                            <a href="{{ $feedUrl($feed) }}" class="hz-bny-sheet-link {{ ! $category ? 'active' : '' }}">All brands</a>
                             @foreach($services as $service)
                                 <a
-                                    href="{{ route('store.index', ['category' => $service->slug]) }}"
+                                    href="{{ route('store.index', array_filter(['category' => $service->slug, 'feed' => $feed !== 'all' ? $feed : null, 'q' => $search ?: null])) }}"
                                     class="hz-bny-sheet-link {{ $category === $service->slug ? 'active' : '' }}"
                                 >
                                     {{ $service->title }}

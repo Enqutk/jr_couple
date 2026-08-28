@@ -3,6 +3,8 @@
     'categoryLabel' => null,
     'location' => 'Addis Ababa',
     'isNew' => false,
+    'averageRating' => null,
+    'reviewCount' => null,
 ])
 
 @php
@@ -10,10 +12,12 @@
     $tag = $categoryLabel
         ? strtoupper(\Illuminate\Support\Str::before($categoryLabel, ' '))
         : 'JR';
+    $rating = $averageRating ?? $product->reviews_avg_rating ?? null;
+    $count = $reviewCount ?? $product->reviews_count ?? null;
 @endphp
 
 <article class="hz-bny-card" data-store-item data-name="{{ strtolower($product->name) }}" data-order="{{ $product->order }}">
-    <a href="{{ route('contact') }}" class="hz-bny-card-link">
+    <a href="{{ route('store.show', $product) }}" class="hz-bny-card-link">
         <div class="hz-bny-card-media">
             @if($image)
                 <img src="{{ $image }}" alt="{{ $product->name }}" loading="lazy" decoding="async">
@@ -38,6 +42,9 @@
 
         <div class="hz-bny-card-body">
             <h3 class="hz-bny-card-title">{{ $product->name }}</h3>
+            @if($rating && $count)
+                <x-horizon.star-rating :rating="$rating" :count="$count" size="xs" />
+            @endif
             <p class="hz-bny-card-seller">{{ $data['siteName'] ?? 'JR' }}</p>
             <div class="hz-bny-card-meta">
                 <i class="bi bi-geo-alt"></i>
@@ -46,7 +53,10 @@
                 <span>Recently</span>
             </div>
             <div class="hz-bny-card-price-row">
-                <span class="hz-bny-card-price">Ask in store</span>
+                <span class="hz-bny-card-price">{{ $product->formattedPrice() }}</span>
+                @if($product->is_negotiable)
+                    <span class="hz-bny-card-price-note">Negotiable</span>
+                @endif
             </div>
             <div class="hz-bny-card-foot">
                 <span class="hz-bny-card-chip">Negotiable</span>

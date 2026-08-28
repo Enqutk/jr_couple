@@ -71,11 +71,39 @@ function initHeader() {
     const collapse = document.getElementById('hzMainNav');
     const toggler = document.querySelector('.hz-toggler');
     if (collapse && toggler) {
+        const hideMenu = () => {
+            const instance = window.bootstrap?.Collapse?.getInstance(collapse)
+                ?? window.bootstrap?.Collapse?.getOrCreateInstance(collapse);
+            instance?.hide();
+        };
+
         collapse.addEventListener('shown.bs.collapse', () => {
             toggler.setAttribute('aria-expanded', 'true');
+            document.body.classList.add('hz-menu-open');
         });
         collapse.addEventListener('hidden.bs.collapse', () => {
             toggler.setAttribute('aria-expanded', 'false');
+            document.body.classList.remove('hz-menu-open');
+        });
+
+        collapse.querySelectorAll('[data-hz-menu-close]').forEach((el) => {
+            el.addEventListener('click', hideMenu);
+        });
+
+        collapse.querySelectorAll('.hz-mobile-nav-link').forEach((link) => {
+            link.closest('a')?.addEventListener('click', () => {
+                if (window.innerWidth < 992 && !link.closest('.dropdown-toggle')) {
+                    hideMenu();
+                }
+            });
+        });
+
+        collapse.querySelectorAll('.hz-dropdown .dropdown-item').forEach((item) => {
+            item.addEventListener('click', () => {
+                if (window.innerWidth < 992) {
+                    hideMenu();
+                }
+            });
         });
     }
 }
@@ -156,10 +184,16 @@ function initStorePage() {
     const sortItems = (mode) => {
         if (!grid) return;
 
+        if (mode === 'newest' || mode === 'trending') {
+            const url = new URL(window.location.href);
+            url.searchParams.set('feed', mode === 'newest' ? 'new' : 'trending');
+            window.location.href = url.toString();
+            return;
+        }
+
         const items = [...grid.querySelectorAll('[data-store-item]')];
         const compare = {
             recommended: (a, b) => Number(a.dataset.order) - Number(b.dataset.order),
-            newest: (a, b) => Number(b.dataset.order) - Number(a.dataset.order),
             name_asc: (a, b) => a.dataset.name.localeCompare(b.dataset.name),
             name_desc: (a, b) => b.dataset.name.localeCompare(a.dataset.name),
         }[mode] || ((a, b) => Number(a.dataset.order) - Number(b.dataset.order));
@@ -265,10 +299,59 @@ function initStorePage() {
     });
 }
 
+function initReviewForm() {
+    document.querySelectorAll('[data-star-input]').forEach((group) => {
+        const sync = () => {
+            const checked = group.querySelector('input:checked');
+            group.querySelectorAll('label').forEach((label) => {
+                const input = label.querySelector('input');
+                const icon = label.querySelector('i');
+                if (!input || !icon) return;
+                icon.style.color = checked && Number(input.value) <= Number(checked.value) ? '#f59e0b' : '#d1d5db';
+            });
+        };
+
+        group.querySelectorAll('input').forEach((input) => {
+            input.addEventListener('change', sync);
+        });
+
+        sync();
+    });
+
+    if (window.location.hash === '#reviews' || window.location.hash === '#write-review') {
+        const target = document.querySelector(window.location.hash);
+        target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function initPaymentCopy() {
+    document.querySelectorAll('[data-copy-text]').forEach((button) => {
+        button.addEventListener('click', async () => {
+            const text = button.getAttribute('data-copy-text');
+            if (!text) return;
+
+            try {
+                await navigator.clipboard.writeText(text);
+                button.classList.add('is-copied');
+                const original = button.innerHTML;
+                button.innerHTML = '<i class="bi bi-check2"></i> Copied';
+                setTimeout(() => {
+                    button.classList.remove('is-copied');
+                    button.innerHTML = original;
+                }, 1600);
+            } catch {
+                /* ignore */
+            }
+        });
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     initHeader();
     initPortfolioFilters();
     initCounters();
     initScrollReveal();
     initStorePage();
+    initReviewForm();
+    initPaymentCopy();
 });

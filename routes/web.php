@@ -8,12 +8,17 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\StoreController;
+use App\Http\Controllers\StoreReviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [AboutController::class, 'index'])->name('about');
 
 Route::get('/store', [StoreController::class, 'index'])->name('store.index');
+Route::get('/store/{entity}', [StoreController::class, 'show'])->name('store.show');
+Route::post('/store/{entity}/reviews', [StoreReviewController::class, 'store'])
+    ->middleware('throttle:reviews')
+    ->name('store.reviews.store');
 
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
 Route::get('/blog/{entity}', [BlogController::class, 'show'])->name('blog.show');

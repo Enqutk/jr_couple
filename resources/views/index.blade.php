@@ -32,12 +32,19 @@
                 <div class="row g-4 mt-2">
                     @foreach($storeProducts->take(3) as $product)
                         <div class="col-md-4">
-                            <article class="hz-store-card hz-store-card-compact">
-                                <div class="hz-store-card-body">
-                                    <h3 class="h6 mb-1">{{ $product->name }}</h3>
-                                    <p class="small mb-0 text-muted">{{ \Illuminate\Support\Str::limit(strip_tags((string) $product->description), 70) }}</p>
-                                </div>
-                            </article>
+                            <a href="{{ route('store.show', $product) }}" class="d-block text-decoration-none">
+                                <article class="hz-store-card hz-store-card-compact">
+                                    @if($product->getFirstMediaUrl('image'))
+                                        <div class="hz-store-card-media" style="aspect-ratio: 16/10;">
+                                            <img src="{{ $product->getFirstMediaUrl('image') }}" alt="{{ $product->name }}">
+                                        </div>
+                                    @endif
+                                    <div class="hz-store-card-body">
+                                        <h3 class="h6 mb-1">{{ $product->name }}</h3>
+                                        <p class="small mb-0 text-muted">{{ \Illuminate\Support\Str::limit(strip_tags((string) $product->description), 70) }}</p>
+                                    </div>
+                                </article>
+                            </a>
                         </div>
                     @endforeach
                 </div>
