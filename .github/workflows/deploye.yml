@@ -1,0 +1,99 @@
+name: Deploy to cPanel
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    types:
+      - closed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'  # Updated to match requirements
+
+    - name: Ensure cache and storage directories exist
+      run: |
+        mkdir -p bootstrap/cache
+        mkdir -p storage/framework/cache
+        mkdir -p storage/framework/sessions
+        mkdir -p storage/framework/views
+        chmod -R 775 storage bootstrap/cache
+
+    - name: Install Composer dependencies
+      run: composer install --no-dev --prefer-dist --no-progress
+
+    - name: Dump Composer Autoload
+      run: composer dump-autoload
+
+    - name: Install NPM dependencies
+      run: npm install
+
+    - name: Build assets
+      run: npm run build
+
+    - name: Deploy to cPanel via FTP
+      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
+      with:
+        server: ${{ secrets.FTP_SERVER }}
+        username: ${{ secrets.FTP_USERNAME }}
+        password: ${{ secrets.FTP_PASSWORD }}
+        exclude: |
+          **/.git*/**
+          **/_trash/**
+          **/.vscode/**
+          **/node_modules/**
+          **/README.md*
+        local-dir: ./
+        server-dir: ./
+
+    - name: Clear Laravel cache
+      run: |
+        php artisan config:clear
+        php artisan cache:clear
+        php artisan view:clear
+        php artisan route:clear
+
+  notify:
+    needs: deploy
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set Notification Message
+        id: set_message
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" && "${{ github.event.pull_request.merged }}" == "true" ]]; then
+            echo "msg=🔀 *Pull Request Merged!* ${{ github.actor }}* merged PR: _${{ github.event.pull_request.title }}_" >> $GITHUB_OUTPUT
+            echo "url=${{ github.event.pull_request.html_url }}" >> $GITHUB_OUTPUT
+          elif [[ "${{ needs.deploy.result }}" == "success" ]]; then
+            echo "msg=✅ *Deployment Successful!* \n _Your changes are live on the server._ 🚀" >> $GITHUB_OUTPUT
+            echo "url=https://veritasafrika.com" >> $GITHUB_OUTPUT         
+          else
+            echo "msg=❌ *Deployment Failed!* \n Check the CI logs to fix the issue. 🔧" >> $GITHUB_OUTPUT
+            echo "url=https://github.com/tetercreatives/veritasafrika/actions" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Notify on Telegram
+        run: |
+            curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -d chat_id=${{ secrets.TELEGRAM_CHAT_ID }} \
+            -d message_thread_id=${{ secrets.MESSAGE_THREAD_ID }} \
+            -d parse_mode=Markdown \
+            -d text="${{ steps.set_message.outputs.msg }}" \
+            --data-urlencode 'reply_markup={
+              "inline_keyboard": [
+                [
+                  { "text": "🌐 View", "url": "${{ steps.set_message.outputs.url }}" },
+                  { "text": "📂 View Repo", "url": "https://github.com/tetercreatives/template" }
+                ]
+              ]
+            }'

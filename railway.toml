@@ -1,0 +1,33 @@
+# Railway — MajiWorks (Laravel + Filament)
+
+Config-as-code for the **App** service. Add a **MySQL** plugin in the same project
+and reference it from Variables (see deploy/railway.md).
+
+[build]
+builder = "RAILPACK"
+# Build frontend assets into public/build
+buildCommand = "npm ci && npm run build"
+
+[deploy]
+# Railpack serves Laravel via php-fpm + Caddy by default.
+# Run migrations / seed / caches before traffic is accepted.
+preDeployCommand = "chmod +x ./railway/init-app.sh && ./railway/init-app.sh"
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 5
+
+[variables]
+# Non-secret defaults (override in dashboard as needed).
+# Secrets (APP_KEY, DB_*) must be set in the Railway dashboard / CLI — never commit them.
+APP_NAME = "MajiWorks"
+APP_ENV = "production"
+APP_DEBUG = "false"
+LOG_CHANNEL = "stderr"
+LOG_LEVEL = "error"
+SESSION_DRIVER = "database"
+SESSION_SECURE_COOKIE = "true"
+CACHE_STORE = "database"
+QUEUE_CONNECTION = "database"
+FILESYSTEM_DISK = "public"
+MEDIA_DISK = "public"
+# Spatie / image conversions
+RAILPACK_PHP_EXTENSIONS = "gd,exif,bcmath,pcntl"
