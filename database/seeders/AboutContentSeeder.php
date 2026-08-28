@@ -19,7 +19,7 @@ class AboutContentSeeder extends Seeder
             [
                 'section_id' => ContentBlock::query()->where('slug', 'veritas-afrika-co-ltd')->value('section_id') ?? $sectionId,
                 'type' => 'image',
-                'title' => 'Welcome to JR',
+                'title' => 'Welcome to JR Couple',
                 'subtitle' => 'Who we are',
                 'short_description' => '',
                 'content' => '<p>JR brings together practical businesses: <strong>JR Ketema</strong> (artificial grass), <strong>JR Mobile</strong> (phones &amp; accessories), <strong>JR Real Estate</strong>, and <strong>Ruties Hair</strong>. Visit the store to shop by category, or browse services to learn what each brand offers.</p>',
