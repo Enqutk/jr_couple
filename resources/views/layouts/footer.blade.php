@@ -62,7 +62,6 @@
 						<div class="pbmit-footer-copyright-text-area">
 							<div class="copyright-text">
 								<a href=".">{{ $data['siteName'] ?? config('app.name') }}</a><span class="fw-bold"> © {{ date('Y') }}</span>. All Right Reserved
-								Developed By <a href="https://tetercreatives.com" target="_blank">Teter PLC</a>
 							</div>
 						</div>
 					</div>

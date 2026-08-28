@@ -19,7 +19,7 @@ class OrganizationContactResource extends Resource
 
     protected static string $permissionKey = 'organization';
     protected static ?string $model = OrganizationContact::class;
-    protected static ?string $navigationGroup = 'Setting';
+    protected static ?string $navigationGroup = 'Settings';
     protected static ?int $navigationSort = 4;
 
     protected static ?string $navigationIcon = 'heroicon-o-phone';

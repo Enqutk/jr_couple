@@ -11,30 +11,43 @@ class PortfolioMediaSeeder extends Seeder
     public function run(): void
     {
         $images = [
-            public_path('assets/images/majiworks/maji-project-highland.png'),
-            public_path('assets/images/majiworks/maji-service-gis.png'),
-            public_path('assets/images/majiworks/maji-about-field.png'),
-            public_path('assets/images/majiworks/maji-service-wash.png'),
-            public_path('assets/images/majiworks/maji-hero-irrigation.png'),
-            public_path('assets/images/majiworks/maji-service-solar.png'),
+            'Home Lawn Turf 30mm' => 'home-lawn-turf.jpg',
+            'Sports Pitch Turf 40mm' => 'sports-pitch-turf.jpg',
+            'Playground Soft Turf' => 'playground-turf.jpg',
+            'Android Everyday Phone' => 'android-phone.jpg',
+            'Flagship Display Phone' => 'flagship-phone.jpg',
+            'Fast Charger Bundle' => 'charger-bundle.jpg',
+            '2BR Family Apartment' => 'apartment-2br.jpg',
+            'Corner Shop Space' => 'corner-shop.jpg',
+            'Investment Plot' => 'investment-plot.jpg',
+            'Natural Wave Wig' => 'wave-wig.jpg',
+            'Bone Straight Bundle' => 'straight-bundle.jpg',
+            'Hair Care Starter Kit' => 'hair-care-kit.jpg',
         ];
 
-        $products = Entity::query()
+        $basePath = public_path('assets/images/jr/store');
+
+        Entity::query()
             ->where('type', EntityTypeEnum::product)
             ->orderBy('order')
-            ->get();
+            ->get()
+            ->each(function (Entity $product) use ($images, $basePath): void {
+                $file = $images[$product->name] ?? null;
 
-        foreach ($products as $index => $product) {
-            $path = $images[$index % count($images)];
+                if (! $file) {
+                    return;
+                }
 
-            if (! is_file($path)) {
-                continue;
-            }
+                $path = $basePath.'/'.$file;
 
-            $product->clearMediaCollection('image');
-            $product->addMedia($path)
-                ->preservingOriginal()
-                ->toMediaCollection('image');
-        }
+                if (! is_file($path)) {
+                    return;
+                }
+
+                $product->clearMediaCollection('image');
+                $product->addMedia($path)
+                    ->preservingOriginal()
+                    ->toMediaCollection('image');
+            });
     }
 }

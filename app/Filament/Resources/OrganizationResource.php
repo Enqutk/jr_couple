@@ -17,8 +17,10 @@ class OrganizationResource extends Resource
 
     protected static string $permissionKey = 'organization';
     protected static ?string $model = Organization::class;
-    protected static ?string $navigationGroup = 'Setting';
-    protected static ?int $navigationSort = 3;
+    protected static ?string $navigationGroup = 'Settings';
+    protected static ?int $navigationSort = 1;
+
+    protected static ?string $navigationLabel = 'Organization & theme';
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     public static function form(Form $form): Form
@@ -82,6 +84,34 @@ class OrganizationResource extends Resource
                             ->label('Borders / lines'),
                         Forms\Components\ColorPicker::make('theme.dark')
                             ->label('Footer / dark blocks'),
+                    ])
+                    ->columns(2)
+                    ->collapsed(false),
+                Forms\Components\Section::make('Payment (ETB)')
+                    ->description('Shown on store product pages — Telebirr, bank transfer, and pay-in-store instructions.')
+                    ->schema([
+                        Forms\Components\TextInput::make('payment.telebirr_number')
+                            ->label('Telebirr number')
+                            ->tel()
+                            ->maxLength(30),
+                        Forms\Components\TextInput::make('payment.telebirr_name')
+                            ->label('Telebirr account name')
+                            ->maxLength(120),
+                        Forms\Components\TextInput::make('payment.bank_name')
+                            ->label('Bank name')
+                            ->placeholder('e.g. Commercial Bank of Ethiopia')
+                            ->maxLength(120),
+                        Forms\Components\TextInput::make('payment.bank_account')
+                            ->label('Bank account number')
+                            ->maxLength(60),
+                        Forms\Components\TextInput::make('payment.bank_account_name')
+                            ->label('Account holder name')
+                            ->maxLength(120),
+                        Forms\Components\Textarea::make('payment.payment_note')
+                            ->label('Payment note')
+                            ->rows(2)
+                            ->maxLength(500)
+                            ->columnSpanFull(),
                     ])
                     ->columns(2)
                     ->collapsed(false),

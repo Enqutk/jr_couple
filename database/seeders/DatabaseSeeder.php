@@ -21,6 +21,7 @@ class DatabaseSeeder extends Seeder
             TeamSeeder::class,
             EntitySeeder::class,
             PortfolioMediaSeeder::class,
+            ProductReviewSeeder::class,
             StatsSeeder::class,
             AboutContentSeeder::class,
         ]);

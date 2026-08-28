@@ -10,20 +10,6 @@
                 <x-site-brand :name="$siteName" :logo="$data['logoUrl'] ?? null" :show-text="empty($data['logoUrl'] ?? null)" />
             </a>
 
-            <button
-                class="hz-toggler d-lg-none"
-                type="button"
-                data-bs-toggle="collapse"
-                data-bs-target="#hzMainNav"
-                aria-controls="hzMainNav"
-                aria-expanded="false"
-                aria-label="Toggle navigation"
-            >
-                <span></span>
-                <span></span>
-                <span></span>
-            </button>
-
             <div class="collapse navbar-collapse hz-nav-collapse" id="hzMainNav">
                 <ul class="navbar-nav ms-auto align-items-lg-center hz-nav">
                     @foreach ($navItems as $link)

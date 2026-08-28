@@ -29,7 +29,7 @@
     </style>
     @stack('styles')
 </head>
-<body>
+<body class="@if(! request()->routeIs('store.show')) hz-has-bottom-nav @endif">
     @include('layouts.horizon.header')
 
     <main>
@@ -37,6 +37,8 @@
     </main>
 
     @include('layouts.horizon.footer')
+
+    <x-horizon.bottom-nav />
 
     @stack('scripts')
 </body>

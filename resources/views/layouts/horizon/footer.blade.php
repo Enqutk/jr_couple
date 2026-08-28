@@ -52,9 +52,8 @@
             </div>
         </div>
 
-        <div class="hz-footer-bottom d-flex flex-column flex-md-row justify-content-between gap-2">
+        <div class="hz-footer-bottom">
             <div>&copy; {{ date('Y') }} {{ $siteName }}. All rights reserved.</div>
-            <div>Developed by <a href="https://tetercreatives.com" target="_blank" rel="noopener">Teter PLC</a></div>
         </div>
     </div>
 </footer>

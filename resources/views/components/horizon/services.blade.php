@@ -25,7 +25,13 @@
         <div class="row g-4">
             @forelse($items as $index => $service)
                 @php
-                    $image = $service->main_image_url;
+                    $jrFallbacks = [
+                        'jr-ketema' => asset('assets/images/jr/store/home-lawn-turf.jpg'),
+                        'jr-mobile' => asset('assets/images/jr/store/flagship-phone.jpg'),
+                        'jr-real-estate' => asset('assets/images/jr/store/apartment-2br.jpg'),
+                        'ruties-hair' => asset('assets/images/jr/store/wave-wig.jpg'),
+                    ];
+                    $image = $service->main_image_url ?: ($jrFallbacks[$service->slug] ?? null);
                 @endphp
                 <div class="col-md-6 col-lg-4">
                     <article class="hz-service-card">

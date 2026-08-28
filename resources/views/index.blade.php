@@ -17,13 +17,41 @@
                     <a href="{{ route('store.index') }}" class="btn-hz-outline">Open store</a>
                 </div>
             </div>
-            <div class="row g-4">
+            <div class="row g-3 g-md-4 hz-store-cat-grid">
+                @php
+                    $catImages = [
+                        'jr-ketema' => asset('assets/images/jr/store/home-lawn-turf.jpg'),
+                        'jr-mobile' => asset('assets/images/jr/store/flagship-phone.jpg'),
+                        'jr-real-estate' => asset('assets/images/jr/store/apartment-2br.jpg'),
+                        'ruties-hair' => asset('assets/images/jr/store/wave-wig.jpg'),
+                    ];
+                    $catAccents = [
+                        'jr-ketema' => '#15803d',
+                        'jr-mobile' => '#1d4ed8',
+                        'jr-real-estate' => '#b45309',
+                        'ruties-hair' => '#be185d',
+                    ];
+                @endphp
                 @foreach($services as $service)
-                    <div class="col-md-4">
-                        <a href="{{ route('store.index', ['category' => $service->slug]) }}" class="hz-store-cat-tile">
-                            <span class="hz-store-cat-tile-label">Category</span>
-                            <strong>{{ $service->title }}</strong>
-                            <span class="hz-link mt-2 d-inline-flex">Browse <i class="bi bi-arrow-right"></i></span>
+                    @php
+                        $catImage = $service->main_image_url ?: ($catImages[$service->slug] ?? null);
+                        $catAccent = $catAccents[$service->slug] ?? 'var(--hz-accent)';
+                    @endphp
+                    <div class="col-6 col-md-4 col-lg-3">
+                        <a
+                            href="{{ route('store.index', ['category' => $service->slug]) }}"
+                            class="hz-store-cat-tile"
+                            style="--cat-accent: {{ $catAccent }}"
+                        >
+                            @if($catImage)
+                                <img src="{{ $catImage }}" alt="{{ $service->title }}" class="hz-store-cat-tile-img">
+                            @endif
+                            <span class="hz-store-cat-tile-overlay"></span>
+                            <span class="hz-store-cat-tile-content">
+                                <span class="hz-store-cat-tile-label">Category</span>
+                                <strong>{{ $service->title }}</strong>
+                                <span class="hz-store-cat-tile-link">Browse <i class="bi bi-arrow-right"></i></span>
+                            </span>
                         </a>
                     </div>
                 @endforeach
@@ -32,12 +60,19 @@
                 <div class="row g-4 mt-2">
                     @foreach($storeProducts->take(3) as $product)
                         <div class="col-md-4">
-                            <article class="hz-store-card hz-store-card-compact">
-                                <div class="hz-store-card-body">
-                                    <h3 class="h6 mb-1">{{ $product->name }}</h3>
-                                    <p class="small mb-0 text-muted">{{ \Illuminate\Support\Str::limit(strip_tags((string) $product->description), 70) }}</p>
-                                </div>
-                            </article>
+                            <a href="{{ route('store.show', $product) }}" class="d-block text-decoration-none">
+                                <article class="hz-store-card hz-store-card-compact">
+                                    @if($product->getFirstMediaUrl('image'))
+                                        <div class="hz-store-card-media" style="aspect-ratio: 16/10;">
+                                            <img src="{{ $product->getFirstMediaUrl('image') }}" alt="{{ $product->name }}">
+                                        </div>
+                                    @endif
+                                    <div class="hz-store-card-body">
+                                        <h3 class="h6 mb-1">{{ $product->name }}</h3>
+                                        <p class="small mb-0 text-muted">{{ \Illuminate\Support\Str::limit(strip_tags((string) $product->description), 70) }}</p>
+                                    </div>
+                                </article>
+                            </a>
                         </div>
                     @endforeach
                 </div>

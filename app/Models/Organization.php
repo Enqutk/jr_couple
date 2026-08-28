@@ -15,6 +15,7 @@ class Organization extends Model implements HasMedia
         'tagline',
         'meta_description',
         'theme',
+        'payment',
         'po_box',
         'address',
         'opening_hours',
@@ -26,6 +27,7 @@ class Organization extends Model implements HasMedia
         'status' => 'string',
         'opening_hours' => 'array',
         'theme' => 'array',
+        'payment' => 'array',
     ];
 
     public function registerMediaCollections(): void
@@ -141,5 +143,26 @@ class Organization extends Model implements HasMedia
         }
 
         return $out;
+    }
+
+    public static function defaultPayment(): array
+    {
+        return [
+            'currency' => 'ETB',
+            'telebirr_number' => '',
+            'telebirr_name' => '',
+            'bank_name' => '',
+            'bank_account' => '',
+            'bank_account_name' => '',
+            'payment_note' => 'Send payment then WhatsApp or call us with your receipt and product name.',
+        ];
+    }
+
+    public function resolvedPayment(): array
+    {
+        return array_merge(self::defaultPayment(), array_filter(
+            $this->payment ?? [],
+            fn ($value) => is_string($value) && $value !== ''
+        ));
     }
 }

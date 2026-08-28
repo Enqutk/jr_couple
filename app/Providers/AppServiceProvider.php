@@ -35,6 +35,10 @@ class AppServiceProvider extends ServiceProvider
             return Limit::perMinute(5)->by($request->ip());
         });
 
+        RateLimiter::for('reviews', function (Request $request) {
+            return Limit::perMinute(3)->by($request->ip());
+        });
+
         View::composer([
             'index',
             'about',

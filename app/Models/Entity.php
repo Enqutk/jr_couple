@@ -8,6 +8,7 @@ use App\Enums\StatusEnum;
 use App\Traits\HasUserStamps;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -24,7 +25,11 @@ class Entity extends Model implements HasMedia
         'source',
         'link',
         'description',
+        'price',
+        'price_label',
+        'is_negotiable',
         'order',
+        'is_featured',
         'status',
         'created_by',
         'updated_by',
@@ -36,14 +41,41 @@ class Entity extends Model implements HasMedia
 
     protected $casts = [
         'order' => 'integer',
+        'price' => 'decimal:2',
+        'is_negotiable' => 'boolean',
+        'is_featured' => 'boolean',
         'type' => EntityTypeEnum::class,
         'source' => PostSourceEnum::class,
         'status' => StatusEnum::class,
     ];
 
+    protected static function booted(): void
+    {
+        static::saving(function (Entity $entity): void {
+            if (! $entity->is_featured || $entity->type !== EntityTypeEnum::product) {
+                return;
+            }
+
+            static::query()
+                ->where('type', EntityTypeEnum::product)
+                ->when($entity->exists, fn ($query) => $query->whereKeyNot($entity->id))
+                ->update(['is_featured' => false]);
+        });
+    }
+
     public function creator(): BelongsTo
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
+    public function activeReviews(): HasMany
+    {
+        return $this->reviews()->where('status', StatusEnum::active);
     }
 
     public function updater(): BelongsTo
@@ -64,12 +96,6 @@ class Entity extends Model implements HasMedia
         if ($media && ! str_starts_with((string) $media->mime_type, 'image/')) {
             return;
         }
-
-        $this->addMediaConversion('thumb')
-            ->width(150)
-            ->height(150)
-            ->sharpen(10)
-            ->nonQueued();
     }
 
     public function getImageUrlAttribute(): ?string
@@ -153,5 +179,25 @@ class Entity extends Model implements HasMedia
         $media = $this->firstPostMedia();
 
         return $media !== null && str_starts_with((string) $media->mime_type, 'video/');
+    }
+
+    public function formattedPrice(): string
+    {
+        if ($this->price === null) {
+            return 'Ask in store';
+        }
+
+        $amount = 'ETB '.number_format((float) $this->price, 0);
+
+        if ($this->price_label) {
+            $amount .= ' '.$this->price_label;
+        }
+
+        return $amount;
+    }
+
+    public function priceAmount(): ?float
+    {
+        return $this->price !== null ? (float) $this->price : null;
     }
 }
