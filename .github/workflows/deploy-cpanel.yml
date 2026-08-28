@@ -1,0 +1,313 @@
+name: Publish Website to CPanel
+
+# Proven pattern: build + local artisan clear + FTP upload.
+# Uses FTP-Deploy-Action v4.4.0 (4.3.3 timed out on this host).
+#
+# GitHub secrets (Settings → Secrets and variables → Actions):
+#   FTP_SERVER       — FTP hostname
+#   FTP_USERNAME
+#   FTP_PASSWORD
+#   FTP_SERVER_DIR   — remote Laravel root. If the FTP account Directory is
+#                      already the site folder, set this to: ./
+#   LIVE_SITE_URL    — public site origin, no trailing slash
+#                      e.g. https://yourdomain.com
+#
+# Document root in cPanel must be the Laravel /public folder.
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+      - 'deploy/**'
+      - 'railway/**'
+      - 'railway.toml'
+      - 'vercel.json'
+      - '.vercelignore'
+  workflow_dispatch:
+
+jobs:
+  FTP-Deploy-Action:
+    name: FTP-Deploy-Action
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          tools: composer
+          extensions: mbstring, xml, ctype, json, tokenizer, pdo_mysql, gd, exif, fileinfo, intl
+
+      - name: Create Laravel directories
+        run: |
+          mkdir -p bootstrap/cache
+          mkdir -p storage/framework/{cache/data,sessions,views}
+          mkdir -p storage/app/public storage/logs
+          chmod -R 775 storage bootstrap/cache
+          touch storage/framework/cache/data/.gitkeep
+          touch storage/framework/sessions/.gitkeep
+          touch storage/framework/views/.gitkeep
+          touch storage/logs/.gitkeep
+          touch storage/app/public/.gitkeep
+          touch bootstrap/cache/.gitkeep
+
+      - name: Install Composer dependencies
+        run: |
+          composer install --no-dev --no-interaction --prefer-dist --optimize-autoloader
+          composer dump-autoload
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Build assets
+        run: |
+          npm install
+          npm run build
+
+      - name: Prepare env for artisan cache clear
+        run: |
+          if [ ! -f .env ]; then
+            cp .env.example .env
+            php artisan key:generate --force || true
+          fi
+
+      - name: Clear Laravel cache
+        run: |
+          php artisan config:clear || true
+          php artisan view:clear || true
+          php artisan route:clear || true
+          rm -f bootstrap/cache/*.php
+          touch bootstrap/cache/.gitkeep
+
+      - name: Clean storage for deployment
+        run: |
+          find storage/framework/cache/data -type f ! -name '.gitkeep' -delete 2>/dev/null || true
+          find storage/framework/sessions -type f ! -name '.gitkeep' -delete 2>/dev/null || true
+          find storage/framework/views -type f ! -name '.gitkeep' -delete 2>/dev/null || true
+          find storage/logs -type f ! -name '.gitkeep' -delete 2>/dev/null || true
+          # Do not upload or wipe production media (Filament / Spatie uploads).
+          find storage/app/public -type f ! -name '.gitkeep' -delete 2>/dev/null || true
+
+      - name: Check FTP secrets
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
+          LIVE_SITE_URL: ${{ secrets.LIVE_SITE_URL }}
+        run: |
+          missing=0
+          if [ -z "$FTP_SERVER" ]; then echo "::error::Missing secret FTP_SERVER"; missing=1; fi
+          if [ -z "$FTP_USERNAME" ]; then echo "::error::Missing secret FTP_USERNAME"; missing=1; fi
+          if [ -z "$FTP_PASSWORD" ]; then echo "::error::Missing secret FTP_PASSWORD"; missing=1; fi
+          if [ -z "$FTP_SERVER_DIR" ]; then echo "::error::Missing secret FTP_SERVER_DIR (use ./ if FTP home is already the Laravel root)"; missing=1; fi
+          if [ -z "$LIVE_SITE_URL" ]; then echo "::error::Missing secret LIVE_SITE_URL (e.g. https://yourdomain.com, no trailing slash)"; missing=1; fi
+          if [ "$missing" -eq 1 ]; then exit 1; fi
+          echo "FTP target secret: $FTP_SERVER → $FTP_SERVER_DIR"
+          echo "Live site: $LIVE_SITE_URL"
+
+      # Prove which remote folder is actually served by LIVE_SITE_URL
+      - name: Verify FTP path maps to live domain
+        id: ftp_root
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ secrets.FTP_SERVER_DIR }}
+          LIVE_SITE_URL: ${{ secrets.LIVE_SITE_URL }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp
+          TOKEN="pathcheck-${{ github.run_id }}-${{ github.run_attempt }}"
+          echo "$TOKEN" > /tmp/ftp-path-check.txt
+          LIVE_ORIGIN="${LIVE_SITE_URL%/}"
+          LIVE_HOST="${LIVE_ORIGIN#https://}"
+          LIVE_HOST="${LIVE_HOST#http://}"
+          LIVE_HOST="${LIVE_HOST%%/*}"
+
+          echo "=== FTP login home ==="
+          lftp -c "
+            set ftp:ssl-allow no;
+            set net:timeout 30;
+            set ftp:passive-mode on;
+            open -u ${FTP_USERNAME},${FTP_PASSWORD} ${FTP_SERVER};
+            cls -1;
+            bye
+          "
+
+          try_put() {
+            local label="$1"
+            local server_dir="$2"
+            local cd_cmd="$3"
+            echo "=== Trying: $label (server-dir=$server_dir) ==="
+            lftp -c "
+              set ftp:ssl-allow no;
+              set net:timeout 30;
+              set ftp:passive-mode on;
+              set cmd:fail-exit yes;
+              open -u ${FTP_USERNAME},${FTP_PASSWORD} ${FTP_SERVER};
+              $cd_cmd
+              put /tmp/ftp-path-check.txt -o deploy-path-check.txt;
+              ls deploy-path-check.txt;
+              bye
+            " || return 1
+            sleep 3
+            local got
+            got=$(curl -sS "${LIVE_ORIGIN}/deploy-path-check.txt" || true)
+            echo "Expected: $TOKEN"
+            echo "Got:      $got"
+            if [ "$got" = "$TOKEN" ]; then
+              echo "OK — live domain maps via: $label"
+              echo "server_dir=$server_dir" >> "$GITHUB_OUTPUT"
+              return 0
+            fi
+            return 1
+          }
+
+          # Most likely: FTP account Directory is already the Laravel root
+          if try_put "FTP home public/" "./" "cd public;"; then
+            echo "::notice::Using server-dir=./ (FTP account is already the Laravel root)"
+            exit 0
+          fi
+
+          REMOTE_DIR="${FTP_SERVER_DIR%/}"
+          case "$FTP_SERVER_DIR" in
+            */) SECRET_DIR="$FTP_SERVER_DIR" ;;
+            *) SECRET_DIR="${FTP_SERVER_DIR}/" ;;
+          esac
+          if [ "$REMOTE_DIR" != "." ] && [ -n "$REMOTE_DIR" ]; then
+            if try_put "secret FTP_SERVER_DIR" "$SECRET_DIR" "cd ${REMOTE_DIR}; cd public;"; then
+              exit 0
+            fi
+          fi
+
+          if try_put "/${LIVE_HOST}/" "/${LIVE_HOST}/" "cd /${LIVE_HOST}/public;"; then
+            echo "::notice::Using server-dir=/${LIVE_HOST}/"
+            exit 0
+          fi
+
+          echo "::error::FTP can upload, but none of the candidate folders are served by ${LIVE_ORIGIN}"
+          echo "::error::In File Manager open ${LIVE_HOST}/public and check for deploy-path-check.txt."
+          echo "::error::If FTP account Directory is already the Laravel root, set secret FTP_SERVER_DIR to: ./"
+          echo "::error::cPanel document root must be the Laravel public/ folder."
+          exit 1
+
+      - name: Write deploy stamp for live-domain check
+        run: |
+          echo "${{ github.sha }}" > public/deploy-sha.txt
+          echo "Stamp: $(cat public/deploy-sha.txt)"
+
+      - name: FTP Deploy
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftp
+          port: 21
+          timeout: 120000
+          local-dir: ./
+          server-dir: ${{ steps.ftp_root.outputs.server_dir }}
+          log-level: standard
+          exclude: |
+            **/.git/**
+            **/.github/**
+            **/.env
+            **/.env.*
+            !**/.env.example
+            **/node_modules/**
+            **/tests/**
+            **/.idea/**
+            **/*.md
+            **/phpunit.xml
+            **/package-lock.json
+            **/vite.config.js
+            **/package.json
+            **/bootstrap/cache/*.php
+            !**/bootstrap/cache/.gitkeep
+            **/storage/app/public/**
+            !**/storage/app/public/.gitkeep
+            **/public/hot
+            **/public/storage
+            **/railway/**
+            **/deploy/**
+            **/api/**
+            vercel.json
+            .vercelignore
+            railway.toml
+
+      - name: Delete stale remote route cache
+        continue-on-error: true
+        env:
+          FTP_SERVER: ${{ secrets.FTP_SERVER }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          FTP_SERVER_DIR: ${{ steps.ftp_root.outputs.server_dir }}
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq lftp
+          REMOTE_DIR="${FTP_SERVER_DIR%/}"
+          if [ -z "$REMOTE_DIR" ] || [ "$REMOTE_DIR" = "." ]; then
+            CACHE_DIR="bootstrap/cache"
+          else
+            CACHE_DIR="${REMOTE_DIR}/bootstrap/cache"
+          fi
+          lftp -c "
+            set ftp:ssl-allow no;
+            set net:timeout 30;
+            set ftp:passive-mode on;
+            set cmd:fail-exit no;
+            open -u ${FTP_USERNAME},${FTP_PASSWORD} ${FTP_SERVER};
+            cd ${CACHE_DIR};
+            rm routes-v7.php;
+            rm routes.php;
+            rm config.php;
+            rm services.php;
+            rm packages.php;
+            bye
+          " || true
+
+      - name: Verify deploy hit the live domain
+        env:
+          LIVE_SITE_URL: ${{ secrets.LIVE_SITE_URL }}
+        run: |
+          sleep 5
+          LIVE_ORIGIN="${LIVE_SITE_URL%/}"
+          expected="${{ github.sha }}"
+          got=$(curl -sS "${LIVE_ORIGIN}/deploy-sha.txt" || true)
+          echo "Expected stamp: $expected"
+          echo "Live stamp:     $got"
+          if [ "$got" != "$expected" ]; then
+            echo "::error::FTP uploaded somewhere that is NOT the live document root."
+            echo "::error::If FTP account Directory is already the Laravel root, set secret FTP_SERVER_DIR to: ./"
+            echo "::error::cPanel document root must be the Laravel public/ folder."
+            exit 1
+          fi
+
+          code=$(curl -sS -o /tmp/verify_home.html -w "%{http_code}" "${LIVE_ORIGIN}/" || true)
+          echo "GET / → HTTP $code"
+          if [ "$code" = "404" ]; then
+            echo "::error::Stamp is live but / is still 404. On cPanel Terminal run: php artisan optimize:clear"
+            exit 1
+          fi
+          if [ "$code" != "200" ] && [ "$code" != "302" ]; then
+            echo "::error::Homepage returned HTTP $code. On cPanel Terminal run: php artisan optimize:clear"
+            echo "::error::Also confirm APP_KEY, APP_URL, and DB_* in the server .env."
+            exit 1
+          fi
+
+          admin=$(curl -sS -o /dev/null -w "%{http_code}" "${LIVE_ORIGIN}/mgt/login" || true)
+          echo "GET /mgt/login → HTTP $admin"
+          if [ "$admin" = "404" ]; then
+            echo "::error::Still 404 for /mgt/login. Run: php artisan optimize:clear"
+            exit 1
+          fi
+          echo "OK — live deploy verified (home=$code, admin=$admin)."
