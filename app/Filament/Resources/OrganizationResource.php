@@ -29,7 +29,7 @@ class OrganizationResource extends Resource
                     ->schema([
                         Forms\Components\TextInput::make('title')
                             ->label('Company name')
-                            ->helperText('Shown in the header, footer, and hero. Use a space for accent styling (e.g. “Maji Works”).')
+                            ->helperText('Shown in the header, footer, and hero. Use a space for accent styling (e.g. “JR Couple”).')
                             ->required()
                             ->maxLength(255),
                         Forms\Components\TextInput::make('po_box')
