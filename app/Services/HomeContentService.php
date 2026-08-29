@@ -75,10 +75,10 @@ class HomeContentService
             'email' => $contacts->get('email', collect())->pluck('value')->all(),
             'phone' => $contacts->get('phone', collect())->pluck('value')->all(),
             'fax' => $contacts->get('fax', collect())->pluck('value')->all(),
-            'address' => $organization->address ?? null,
-            'working_days' => $organization->opening_hours ?? [],
+            'address' => $organization?->address,
+            'working_days' => $organization?->opening_hours ?? [],
             'hours' => $this->formatOpeningHours($organization?->opening_hours ?? []),
-            'map' => $organization->map_url ?? null,
+            'map' => $organization?->map_url,
 
             'heroFeatures' => $blocks->get('key-features'),
             'aboutFeatures' => $aboutFeaturesBlock

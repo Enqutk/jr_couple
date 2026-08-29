@@ -367,6 +367,8 @@ jobs:
           fi
           if [ "$code" = "500" ]; then
             echo "::error::FTP deploy OK and Laravel boots (/up=200), but pages return HTTP 500."
+            health=$(curl -sS "${LIVE_ORIGIN}/deploy-health" || true)
+            echo "GET /deploy-health → $health"
             echo "::error::On cPanel Terminal, in the site folder, run: bash scripts/cpanel-setup.sh"
             echo "::error::Or manually: php artisan migrate --force && php artisan db:seed --force && php artisan storage:link && php artisan optimize:clear"
             echo "::error::Ensure .env has APP_KEY, APP_URL=${LIVE_ORIGIN}, and correct DB_* (create DB in cPanel first)."

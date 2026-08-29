@@ -24,20 +24,28 @@ class NavigationService
     public function navbarItems(): Collection
     {
         $items = Cache::remember('nav.navbar', 60, function () {
-            $location = MenuLocation::query()
-                ->where('location', MenuLocationEnum::Navbar)
-                ->first();
+            try {
+                $location = MenuLocation::query()
+                    ->where('location', MenuLocationEnum::Navbar)
+                    ->first();
+            } catch (\Throwable) {
+                return $this->fallbackNavbar()->all();
+            }
 
             if (! $location) {
                 return $this->fallbackNavbar()->all();
             }
 
-            $items = MenuItem::query()
-                ->where('menu_id', $location->id)
-                ->whereNull('parent_id')
-                ->orderBy('order_number')
-                ->with(['children' => fn ($q) => $q->orderBy('order_number')])
-                ->get();
+            try {
+                $items = MenuItem::query()
+                    ->where('menu_id', $location->id)
+                    ->whereNull('parent_id')
+                    ->orderBy('order_number')
+                    ->with(['children' => fn ($q) => $q->orderBy('order_number')])
+                    ->get();
+            } catch (\Throwable) {
+                return $this->fallbackNavbar()->all();
+            }
 
             if ($items->isEmpty()) {
                 return $this->fallbackNavbar()->all();
