@@ -13,7 +13,7 @@ class ForceHttpsInProduction
         if (
             app()->environment('production')
             && ! $request->secure()
-            && ! $request->is('up')
+            && ! $request->is('up', 'deploy-health')
         ) {
             return redirect()->secure($request->getRequestUri(), 301);
         }

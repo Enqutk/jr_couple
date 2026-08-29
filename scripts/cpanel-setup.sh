@@ -20,6 +20,19 @@ if ! php artisan db:show >/dev/null 2>&1; then
   exit 1
 fi
 
+# cPanel: file/sync drivers avoid needing sessions/cache/jobs tables before migrate.
+for pair in "SESSION_DRIVER file" "CACHE_STORE file" "QUEUE_CONNECTION sync"; do
+  key="${pair%% *}"
+  val="${pair#* }"
+  if grep -q "^${key}=database" .env 2>/dev/null; then
+    sed -i "s/^${key}=database/${key}=${val}/" .env
+    echo "Updated .env: ${key}=${val}"
+  elif ! grep -q "^${key}=" .env 2>/dev/null; then
+    echo "${key}=${val}" >> .env
+    echo "Added .env: ${key}=${val}"
+  fi
+done
+
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
 php artisan storage:link --force 2>/dev/null || php artisan storage:link || true

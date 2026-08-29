@@ -9,52 +9,7 @@ use App\Http\Controllers\PortfolioController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\StoreController;
 use App\Http\Controllers\StoreReviewController;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Schema;
-
-Route::get('/deploy-health', function () {
-    $checks = [];
-    $ok = true;
-
-    if (config('app.key')) {
-        $checks['app_key'] = 'ok';
-    } else {
-        $checks['app_key'] = 'missing — run: php artisan key:generate';
-        $ok = false;
-    }
-
-    try {
-        DB::connection()->getPdo();
-        $checks['database'] = 'connected';
-    } catch (\Throwable $e) {
-        $checks['database'] = 'failed — check DB_* in .env ('.$e->getMessage().')';
-        $ok = false;
-    }
-
-    if ($ok) {
-        $requiredTables = ['organizations', 'entities', 'heroes', 'services', 'migrations'];
-        $missing = array_values(array_filter(
-            $requiredTables,
-            fn (string $table): bool => ! Schema::hasTable($table),
-        ));
-
-        if ($missing === []) {
-            $checks['migrations'] = 'ok';
-        } else {
-            $checks['migrations'] = 'missing tables: '.implode(', ', $missing).' — run: php artisan migrate --force';
-            $ok = false;
-        }
-    } else {
-        $checks['migrations'] = 'skipped (database unavailable)';
-    }
-
-    $checks['storage_writable'] = is_writable(storage_path('logs'))
-        ? 'ok'
-        : 'not writable — run: chmod -R 775 storage bootstrap/cache';
-
-    return response()->json(['ok' => $ok, 'checks' => $checks], $ok ? 200 : 503);
-})->name('deploy.health');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/about', [AboutController::class, 'index'])->name('about');

@@ -371,7 +371,7 @@ jobs:
             echo "GET /deploy-health → $health"
             echo "::error::On cPanel Terminal, in the site folder, run: bash scripts/cpanel-setup.sh"
             echo "::error::Or manually: php artisan migrate --force && php artisan db:seed --force && php artisan storage:link && php artisan optimize:clear"
-            echo "::error::Ensure .env has APP_KEY, APP_URL=${LIVE_ORIGIN}, and correct DB_* (create DB in cPanel first)."
+            echo "::error::Ensure .env has APP_KEY, APP_URL=${LIVE_ORIGIN}, correct DB_*, and SESSION_DRIVER=file (not database)."
             echo "::error::If still failing, read storage/logs/laravel.log on the server."
             exit 1
           fi
