@@ -348,13 +348,23 @@ jobs:
 
           code=$(curl -sS -o /tmp/verify_home.html -w "%{http_code}" "${LIVE_ORIGIN}/" || true)
           echo "GET / → HTTP $code"
+          if [ "$code" = "403" ]; then
+            echo "::error::Homepage returned HTTP 403 (LiteSpeed blocked the docroot directory)."
+            echo "::error::Ensure repo root .htaccess and index.php were deployed (they route / to public/index.php)."
+            exit 1
+          fi
           if [ "$code" = "404" ]; then
             echo "::error::Stamp is live but / is still 404. On cPanel Terminal run: php artisan optimize:clear"
             exit 1
           fi
+          if [ "$code" = "500" ]; then
+            echo "::error::Files deployed but Laravel returned HTTP 500."
+            echo "::error::On cPanel Terminal (in the site folder): php artisan optimize:clear"
+            echo "::error::Then check storage/ and bootstrap/cache/ are writable (775) and .env has APP_KEY, APP_URL, DB_*."
+            exit 1
+          fi
           if [ "$code" != "200" ] && [ "$code" != "302" ]; then
-            echo "::error::Homepage returned HTTP $code. On cPanel Terminal run: php artisan optimize:clear"
-            echo "::error::Also confirm APP_KEY, APP_URL, and DB_* in the server .env."
+            echo "::error::Homepage returned HTTP $code."
             exit 1
           fi
 
