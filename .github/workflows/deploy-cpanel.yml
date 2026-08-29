@@ -245,15 +245,15 @@ jobs:
             set cmd:fail-exit no;
             open -u ${FTP_USERNAME},${FTP_PASSWORD} ${FTP_SERVER};
             cd ${CD_ROOT};
-            mkdir -p bootstrap/cache;
-            mkdir -p storage/app/public;
-            mkdir -p storage/app/private;
-            mkdir -p storage/framework/cache/data;
-            mkdir -p storage/framework/sessions;
-            mkdir -p storage/framework/views;
-            mkdir -p storage/logs;
+            mkdir -f -p bootstrap/cache;
+            mkdir -f -p storage/app/public;
+            mkdir -f -p storage/app/private;
+            mkdir -f -p storage/framework/cache/data;
+            mkdir -f -p storage/framework/sessions;
+            mkdir -f -p storage/framework/views;
+            mkdir -f -p storage/logs;
             bye
-          "
+          " || true
 
       - name: FTP Deploy
         uses: SamKirkland/FTP-Deploy-Action@v4.4.0
