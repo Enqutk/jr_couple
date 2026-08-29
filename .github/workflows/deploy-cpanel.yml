@@ -348,6 +348,14 @@ jobs:
 
           code=$(curl -sS -o /tmp/verify_home.html -w "%{http_code}" "${LIVE_ORIGIN}/" || true)
           echo "GET / → HTTP $code"
+
+          up_code=$(curl -sS -o /dev/null -w "%{http_code}" "${LIVE_ORIGIN}/up" || true)
+          echo "GET /up → HTTP $up_code"
+          if [ "$up_code" != "200" ]; then
+            echo "::error::Laravel did not boot (GET /up → HTTP $up_code). Check vendor/, PHP version, and server .env APP_KEY."
+            exit 1
+          fi
+
           if [ "$code" = "403" ]; then
             echo "::error::Homepage returned HTTP 403 (LiteSpeed blocked the docroot directory)."
             echo "::error::Ensure repo root .htaccess and index.php were deployed (they route / to public/index.php)."
@@ -358,9 +366,11 @@ jobs:
             exit 1
           fi
           if [ "$code" = "500" ]; then
-            echo "::error::Files deployed but Laravel returned HTTP 500."
-            echo "::error::On cPanel Terminal (in the site folder): php artisan optimize:clear"
-            echo "::error::Then check storage/ and bootstrap/cache/ are writable (775) and .env has APP_KEY, APP_URL, DB_*."
+            echo "::error::FTP deploy OK and Laravel boots (/up=200), but pages return HTTP 500."
+            echo "::error::On cPanel Terminal, in the site folder, run: bash deploy/cpanel-setup.sh"
+            echo "::error::Or manually: php artisan migrate --force && php artisan db:seed --force && php artisan storage:link && php artisan optimize:clear"
+            echo "::error::Ensure .env has APP_KEY, APP_URL=${LIVE_ORIGIN}, and correct DB_* (create DB in cPanel first)."
+            echo "::error::If still failing, read storage/logs/laravel.log on the server."
             exit 1
           fi
           if [ "$code" != "200" ] && [ "$code" != "302" ]; then
