@@ -14,6 +14,12 @@ class AboutContentSeeder extends Seeder
         $userId = User::query()->value('id');
         $sectionId = PageSection::query()->value('id');
 
+        if (! $userId || ! $sectionId) {
+            $this->command?->warn('AboutContentSeeder skipped — run UserSeeder and PageSeeder first.');
+
+            return;
+        }
+
         ContentBlock::query()->updateOrCreate(
             ['slug' => 'veritas-afrika-co-ltd'],
             [

@@ -36,6 +36,9 @@ done
 chmod -R 775 storage bootstrap/cache 2>/dev/null || true
 
 php artisan storage:link --force 2>/dev/null || php artisan storage:link || true
+if ! grep -q '^SEED_ADMIN_PASSWORD=' .env 2>/dev/null; then
+  echo "Tip: add SEED_ADMIN_PASSWORD=YourStrongPassword to .env before seeding (or UserSeeder will generate one)."
+fi
 php artisan migrate --force
 php artisan db:seed --force
 php artisan optimize:clear
